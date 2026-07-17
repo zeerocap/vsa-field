@@ -9,6 +9,7 @@ const PRO_NAV = [
   { path: "/leads",      icon: "👥", label: "Leads" },
   { path: "/expenses",   icon: "💰", label: "Expenses" },
   { path: "/targets",    icon: "🎯", label: "Targets" },
+  { path: "/venues",     icon: "🏢", label: "Venues" },
 ];
 
 const ADMIN_NAV = [
@@ -21,6 +22,7 @@ const ADMIN_NAV = [
   { path: "/venues",     icon: "🏢", label: "Venues" },
   { path: "/leads",      icon: "👥", label: "Field Leads" },
   { path: "/targets",    icon: "🎯", label: "Targets" },
+  { path: "/venues",     icon: "🏢", label: "Venues" },
 ];
 
 export default function Layout({ children }) {

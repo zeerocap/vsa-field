@@ -10,6 +10,7 @@ import ProActivities from "./pages/pro/Activities.jsx";
 import ProFieldLeads from "./pages/pro/FieldLeads.jsx";
 import ProExpenses   from "./pages/pro/Expenses.jsx";
 import ProTargets    from "./pages/pro/Targets.jsx";
+import ProVenues     from "./pages/pro/Venues.jsx";
 
 import AdminDashboard  from "./pages/admin/Dashboard.jsx";
 import AdminActivities from "./pages/admin/Activities.jsx";
@@ -32,6 +33,7 @@ function ProtectedApp() {
       <Route path="/leads"      element={<ProFieldLeads />} />
       <Route path="/expenses"   element={<ProExpenses />} />
       <Route path="/targets"    element={<ProTargets />} />
+          <Route path="/venues"     element={<ProVenues />} />
       <Route path="*"           element={<Navigate to="/" replace />} />
     </Routes></Layout>
   );
