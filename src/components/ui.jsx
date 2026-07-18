@@ -132,6 +132,7 @@ export function Select({ label, value, onChange, options = [], required, style =
         style={{ width: "100%", border: `1.5px solid ${focus ? C.brand : C.border}`, borderRadius: 9,
           padding: "11px 13px", fontSize: 14, color: C.text, outline: "none",
           background: "#fff", boxSizing: "border-box", cursor: "pointer",
+          transition: "border-color 0.15s" }}>
         {options.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
       </select>
     </div>
