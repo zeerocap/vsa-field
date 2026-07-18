@@ -12,7 +12,7 @@ function ProgressBar({ value, max, color = C.accent }) {
       </div>
       <div style={{ display: "flex", justifyContent: "space-between", marginTop: 4, fontSize: 11, color: C.muted }}>
         <span>{value} / {max}</span>
-        <span style={{ fontWeight: 600, color: pct >= 100 ? "#388e3c" : C.text }}>{pct}%</span>
+        <span style={{ fontWeight: 600, color: pct >= 100 ? C.success : C.text }}>{pct}%</span>
       </div>
     </div>
   );
@@ -30,16 +30,19 @@ export default function ProTargets() {
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-      <div style={{ fontWeight: 700, fontSize: 20, color: C.text }}>🎯 Targets</div>
+      <div style={{ fontWeight: 700, fontSize: 20, color: C.text }}>Targets</div>
 
-      {targets.length === 0 ? <Empty msg="No targets set yet" icon="🎯" /> : targets.map((t, i) => (
+      {targets.length === 0 ? <Empty msg="No targets set yet" icon="target" /> : targets.map((t, i) => (
         <Card key={i} style={{ padding: "16px" }}>
           <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 10 }}>
             <div style={{ fontWeight: 600, fontSize: 15, color: C.text }}>{t.metric_name || t.metric || "Target"}</div>
             <div style={{ fontSize: 11, color: C.muted }}>{t.period || "Monthly"}</div>
           </div>
-          <ProgressBar value={t.achieved ?? t.current ?? 0} max={t.target_value ?? t.target ?? 0}
-            color={(t.achieved ?? 0) >= (t.target_value ?? 1) ? "#388e3c" : C.accent} />
+          <ProgressBar
+            value={t.achieved ?? t.current ?? 0}
+            max={t.target_value ?? t.target ?? 0}
+            color={(t.achieved ?? 0) >= (t.target_value ?? 1) ? C.success : C.accent}
+          />
           {t.notes && <div style={{ marginTop: 8, fontSize: 12, color: C.muted }}>{t.notes}</div>}
         </Card>
       ))}

@@ -35,8 +35,8 @@ export const updateVenue     = (params) => call("updateFieldVenue", params);
 export const setVenueLocation = (params) => call("setVenueLocation", params);
 
 // Sessions (admin)
-export const getLiveSessions  = ()       => call("getLiveSessions");
 export const getSessions     = (params) => call("getFieldSessions", params);
+export const getLiveSessions = () => call("getLiveSessions");
 
 // Trail
 export const recordTrail     = (params) => call("recordTrailPoints", params);

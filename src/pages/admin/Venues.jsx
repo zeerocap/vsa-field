@@ -1,41 +1,31 @@
 import { useState, useEffect } from "react";
 import C from "../../constants/theme.js";
 import { Card, Btn, Modal, Input, Select, Spinner, Empty } from "../../components/ui.jsx";
+import Icon from "../../components/Icons.jsx";
 import { getVenues, addVenue, updateVenue } from "../../api/field.api.js";
 
-const VTYPES = [
-  { value: "school",    label: "School" },
-  { value: "college",   label: "College" },
-  { value: "coaching",  label: "Coaching Centre" },
-  { value: "corporate", label: "Corporate" },
-  { value: "hospital",  label: "Hospital" },
-  { value: "mall",      label: "Mall / Retail" },
-  { value: "other",     label: "Other" },
-];
+const VTYPES = ["school","college","coaching","corporate","mall","event","hospital","other"];
+const VTYPE_LABELS = { school:"School", college:"College", coaching:"Coaching", corporate:"Corporate",
+  mall:"Mall", event:"Event Venue", hospital:"Hospital", other:"Other" };
+const REL_STATUS = ["new","warm","active","cold"];
+const DISTRICTS  = ["Thiruvananthapuram","Kollam","Pathanamthitta","Alappuzha","Kottayam","Idukki",
+  "Ernakulam","Thrissur","Palakkad","Malappuram","Kozhikode","Wayanad","Kannur","Kasaragod"];
 
-const REL_TYPES = [
-  { value: "new",    label: "New" },
-  { value: "warm",   label: "Warm" },
-  { value: "active", label: "Active" },
-  { value: "cold",   label: "Cold" },
-];
-
-const KERALA_DISTRICTS = [
-  "Thiruvananthapuram","Kollam","Pathanamthitta","Alappuzha","Kottayam",
-  "Idukki","Ernakulam","Thrissur","Palakkad","Malappuram","Kozhikode",
-  "Wayanad","Kannur","Kasaragod",
-];
-
-const typeColor = (t) => {
-  const map = {
-    school:    C.brand,
-    college:   C.info,
-    coaching:  C.success,
-    corporate: C.warning,
-    other:     C.muted,
-  };
-  return map[t] || C.muted;
+const REL_COLORS = {
+  active: { color: C.success, bg: C.successBg },
+  warm:   { color: "#D97706", bg: "#FEF3C7" },
+  new:    { color: C.info,    bg: C.infoBg },
+  cold:   { color: C.muted,   bg: C.bg },
 };
+
+function timeAgo(dateStr) {
+  if (!dateStr) return "Never";
+  const days = Math.floor((Date.now() - new Date(dateStr).getTime()) / 86400000);
+  if (days === 0) return "Today";
+  if (days === 1) return "Yesterday";
+  if (days < 30) return `${days}d ago`;
+  return `${Math.floor(days / 30)}mo ago`;
+}
 
 export default function AdminVenues() {
   const [venues,  setVenues]  = useState([]);
@@ -43,136 +33,150 @@ export default function AdminVenues() {
   const [open,    setOpen]    = useState(false);
   const [saving,  setSaving]  = useState(false);
   const [editing, setEditing] = useState(null);
-  const [err,     setErr]     = useState("");
+  const [search,  setSearch]  = useState("");
   const [form,    setForm]    = useState({
-    name: "", venueType: "school", district: "", place: "",
-    address: "", contactName: "", contactPhone: "",
+    name: "", district: "", place: "", address: "",
+    venueType: "school", contactName: "", contactPhone: "",
     relationshipStatus: "new", notes: "",
   });
 
   const load = () => {
-    getVenues().then(r => setVenues(r?.venues || [])).catch(() => {}).finally(() => setLoading(false));
+    getVenues().then(r => setVenues(r?.venues || r || [])).catch(() => {}).finally(() => setLoading(false));
   };
   useEffect(load, []);
 
-  const openNew = () => {
+  const openNew  = () => {
     setEditing(null);
-    setErr("");
-    setForm({ name: "", venueType: "school", district: "", place: "", address: "", contactName: "", contactPhone: "", relationshipStatus: "new", notes: "" });
+    setForm({ name: "", district: "", place: "", address: "", venueType: "school",
+      contactName: "", contactPhone: "", relationshipStatus: "new", notes: "" });
     setOpen(true);
   };
-
   const openEdit = (v) => {
     setEditing(v);
-    setErr("");
     setForm({
-      name:               v.name || "",
-      venueType:          v.venue_type || "school",
-      district:           v.district || "",
-      place:              v.place || "",
-      address:            v.address || "",
-      contactName:        v.contact_name || "",
-      contactPhone:       v.contact_phone || "",
-      relationshipStatus: v.relationship_status || "new",
-      notes:              v.notes || "",
+      name: v.name || "", district: v.district || "", place: v.place || "", address: v.address || "",
+      venueType: v.venue_type || "school", contactName: v.contact_name || "",
+      contactPhone: v.contact_phone || "", relationshipStatus: v.relationship_status || "new", notes: v.notes || "",
     });
     setOpen(true);
   };
-
   const F = (k, v) => setForm(f => ({ ...f, [k]: v }));
 
   async function handleSave(e) {
-    e.preventDefault();
-    if (!form.name) { setErr("Venue name is required"); return; }
-    if (!form.district) { setErr("District is required"); return; }
-    setSaving(true); setErr("");
+    e.preventDefault(); if (!form.name || !form.district) return; setSaving(true);
     try {
       if (editing) {
-        // updateVenue expects: venueId, contactName, contactPhone, address, relationshipStatus, notes
         await updateVenue({
-          venueId:            editing.id,
-          name:               form.name,
-          contactName:        form.contactName,
-          contactPhone:       form.contactPhone,
-          address:            form.address,
-          relationshipStatus: form.relationshipStatus,
-          notes:              form.notes,
+          venueId: editing.id,
+          contactName: form.contactName, contactPhone: form.contactPhone,
+          address: form.address, relationshipStatus: form.relationshipStatus, notes: form.notes,
         });
       } else {
-        // addVenue expects: name, venueType, district, place, address, contactName, contactPhone, relationshipStatus
         await addVenue({
-          name:               form.name,
-          venueType:          form.venueType,
-          district:           form.district,
-          place:              form.place,
-          address:            form.address,
-          contactName:        form.contactName,
-          contactPhone:       form.contactPhone,
-          relationshipStatus: form.relationshipStatus,
+          name: form.name, district: form.district, place: form.place, address: form.address,
+          venueType: form.venueType, contactName: form.contactName, contactPhone: form.contactPhone,
+          relationshipStatus: form.relationshipStatus, notes: form.notes,
         });
       }
       setOpen(false); load();
-    } catch (er) { setErr(er.message || "Failed to save"); }
-    finally { setSaving(false); }
+    } catch (err) { alert(err.message); } finally { setSaving(false); }
   }
 
   if (loading) return <Spinner />;
+
+  const filtered = search
+    ? venues.filter(v => v.name?.toLowerCase().includes(search.toLowerCase()) || v.district?.toLowerCase().includes(search.toLowerCase()))
+    : venues;
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
         <div>
-          <div style={{ fontWeight: 700, fontSize: 20, color: C.text }}>🏢 Venues</div>
-          <div style={{ fontSize: 12, color: C.muted, marginTop: 2 }}>{venues.length} total venues</div>
+          <div style={{ fontWeight: 700, fontSize: 22, color: C.text }}>Venues</div>
+          <div style={{ fontSize: 12, color: C.muted, marginTop: 2 }}>{filtered.length} venue{filtered.length !== 1 ? "s" : ""}</div>
         </div>
         <Btn onClick={openNew}>+ Add Venue</Btn>
       </div>
 
-      {venues.length === 0 ? <Empty msg="No venues yet" icon="🏢" /> : venues.map((v, i) => (
-        <Card key={v.id || i} style={{ padding: "14px 16px", cursor: "pointer" }} onClick={() => openEdit(v)}>
-          <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 4 }}>
-            <div style={{ fontWeight: 600, fontSize: 14, color: C.text }}>{v.name}</div>
-            <div style={{ display: "flex", gap: 6 }}>
-              <span style={{ background: typeColor(v.venue_type) + "18", color: typeColor(v.venue_type), borderRadius: 20, padding: "2px 8px", fontSize: 11, fontWeight: 600, textTransform: "capitalize" }}>
-                {v.venue_type || "other"}
-              </span>
-              <span style={{ background: C.bg, color: C.muted, borderRadius: 20, padding: "2px 8px", fontSize: 11, textTransform: "capitalize" }}>
-                {v.relationship_status || "new"}
-              </span>
+      <input
+        value={search}
+        onChange={e => setSearch(e.target.value)}
+        placeholder="Search venues or district..."
+        style={{ padding: "10px 14px", border: `1px solid ${C.border}`, borderRadius: 8,
+          fontSize: 13, background: C.card, color: C.text, outline: "none", width: "100%", boxSizing: "border-box" }}
+      />
+
+      {filtered.length === 0 ? <Empty msg="No venues yet" icon="building" /> : filtered.map((v, i) => {
+        const rc = REL_COLORS[v.relationship_status] || REL_COLORS.new;
+        return (
+          <Card key={v.id || i} style={{ padding: "14px 16px", cursor: "pointer" }} onClick={() => openEdit(v)}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 8 }}>
+              <div style={{ flex: 1 }}>
+                <div style={{ fontWeight: 700, fontSize: 15, color: C.text, marginBottom: 5 }}>{v.name}</div>
+                <div style={{ display: "flex", gap: 6, flexWrap: "wrap", alignItems: "center" }}>
+                  <span style={{ background: C.infoBg, color: C.info, borderRadius: 20, padding: "2px 8px", fontSize: 11, fontWeight: 600 }}>
+                    {VTYPE_LABELS[v.venue_type] || v.venue_type || "—"}
+                  </span>
+                  <span style={{ background: rc.bg, color: rc.color, borderRadius: 20, padding: "2px 8px", fontSize: 11, fontWeight: 600, textTransform: "capitalize" }}>
+                    {v.relationship_status || "new"}
+                  </span>
+                </div>
+              </div>
+              <div style={{ textAlign: "right", flexShrink: 0 }}>
+                <div style={{ fontSize: 11, color: C.muted }}>{v.district}</div>
+                <div style={{ fontSize: 11, color: C.muted, marginTop: 2 }}>Last: {timeAgo(v.last_visited_at)}</div>
+              </div>
             </div>
-          </div>
-          {v.district     && <div style={{ fontSize: 12, color: C.muted }}>📍 {v.district}{v.place ? ` — ${v.place}` : ""}</div>}
-          {v.contact_name && <div style={{ fontSize: 12, color: C.muted, marginTop: 2 }}>👤 {v.contact_name}{v.contact_phone ? ` · ${v.contact_phone}` : ""}</div>}
-          <div style={{ display: "flex", gap: 12, marginTop: 8 }}>
-            <span style={{ fontSize: 12, fontWeight: 600, color: C.brand }}>{v.total_visits || 0} visits</span>
-            <span style={{ fontSize: 12, fontWeight: 600, color: C.success }}>{v.total_leads || 0} leads</span>
-          </div>
-        </Card>
-      ))}
+
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
+              {v.contact_name && (
+                <div style={{ display: "flex", alignItems: "center", gap: 5, fontSize: 12, color: C.muted }}>
+                  <Icon name="user" size={12} color={C.muted} />
+                  {v.contact_name}
+                </div>
+              )}
+              {v.contact_phone && (
+                <div style={{ display: "flex", alignItems: "center", gap: 5, fontSize: 12, color: C.muted }}>
+                  <Icon name="phone" size={12} color={C.muted} />
+                  {v.contact_phone}
+                </div>
+              )}
+            </div>
+
+            <div style={{ display: "flex", gap: 16, marginTop: 10, paddingTop: 10, borderTop: `1px solid ${C.border}` }}>
+              <div>
+                <span style={{ fontSize: 16, fontWeight: 800, color: C.brand }}>{v.total_visits || 0}</span>
+                <span style={{ fontSize: 11, color: C.muted, marginLeft: 4 }}>visits</span>
+              </div>
+              <div>
+                <span style={{ fontSize: 16, fontWeight: 800, color: C.success }}>{v.total_leads || 0}</span>
+                <span style={{ fontSize: 11, color: C.muted, marginLeft: 4 }}>leads</span>
+              </div>
+            </div>
+          </Card>
+        );
+      })}
 
       <Modal open={open} onClose={() => setOpen(false)} title={editing ? "Edit Venue" : "Add Venue"}>
         <form onSubmit={handleSave} style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-          {err && <div style={{ background: C.dangerBg, color: C.danger, borderRadius: 8, padding: "10px 12px", fontSize: 13 }}>{err}</div>}
-
-          <Input label="Venue Name *" value={form.name} onChange={e => F("name", e.target.value)} required placeholder="School / College name" />
-
           {!editing && (
             <>
-              <Select label="Type" value={form.venueType} onChange={e => F("venueType", e.target.value)} options={VTYPES} />
-              <Select label="District *" value={form.district} onChange={e => F("district", e.target.value)}
-                options={[{ value: "", label: "— Select District —" }, ...KERALA_DISTRICTS.map(d => ({ value: d, label: d }))]} />
-              <Input label="Place / Locality" value={form.place} onChange={e => F("place", e.target.value)} placeholder="e.g. Kakkanad, Thrissur Road" />
+              <Input label="Venue Name *" value={form.name} onChange={e => F("name", e.target.value)} required placeholder="School / College name" />
+              <Select label="Type *" value={form.venueType} onChange={e => F("venueType", e.target.value)}
+                options={VTYPES.map(t => ({ value: t, label: VTYPE_LABELS[t] }))} />
+              <Select label="District *" value={form.district} onChange={e => F("district", e.target.value)} required
+                options={[{ value: "", label: "— Select district —" }, ...DISTRICTS.map(d => ({ value: d, label: d }))]} />
+              <Input label="Place / Area" value={form.place} onChange={e => F("place", e.target.value)} placeholder="Town or locality" />
             </>
           )}
-
-          <Input label="Address" value={form.address} onChange={e => F("address", e.target.value)} placeholder="Full address (for navigation)" />
+          <Input label="Address" value={form.address} onChange={e => F("address", e.target.value)} placeholder="Full address" />
           <Input label="Contact Name" value={form.contactName} onChange={e => F("contactName", e.target.value)} placeholder="Principal / POC name" />
           <Input label="Contact Phone" value={form.contactPhone} onChange={e => F("contactPhone", e.target.value)} placeholder="Phone number" />
-
-          <Select label="Relationship Status" value={form.relationshipStatus} onChange={e => F("relationshipStatus", e.target.value)} options={REL_TYPES} />
-
+          <Select label="Relationship Status" value={form.relationshipStatus} onChange={e => F("relationshipStatus", e.target.value)}
+            options={REL_STATUS.map(s => ({ value: s, label: s.charAt(0).toUpperCase() + s.slice(1) }))} />
+          <Input label="Notes" value={form.notes} onChange={e => F("notes", e.target.value)} placeholder="Any details..." />
           <Btn type="submit" disabled={saving} size="lg" style={{ width: "100%" }}>
-            {saving ? "Saving…" : editing ? "Update Venue" : "Add Venue"}
+            {saving ? "Saving..." : editing ? "Update Venue" : "Add Venue"}
           </Btn>
         </form>
       </Modal>

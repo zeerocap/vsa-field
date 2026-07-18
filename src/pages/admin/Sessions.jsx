@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
 import C from "../../constants/theme.js";
-import { Card, Spinner, Empty, Select } from "../../components/ui.jsx";
-import { getSessions, getUsers } from "../../api/field.api.js";
-import { getLiveSessions } from "../../api/field.api.js";
+import { Card, Spinner, Empty } from "../../components/ui.jsx";
+import Icon from "../../components/Icons.jsx";
+import { getSessions, getLiveSessions, getUsers } from "../../api/field.api.js";
 
 function fmt(dt) {
   return dt ? new Date(dt).toLocaleString([], { dateStyle: "short", timeStyle: "short" }) : "—";
@@ -23,66 +23,103 @@ export default function AdminSessions() {
   useEffect(() => {
     Promise.all([getSessions({}), getLiveSessions(), getUsers()])
       .then(([completed, live, u]) => {
-        const completedList = completed?.sessions || [];
-        const liveList      = live?.sessions || [];
-        // Merge: live first, then completed; deduplicate by id
-        const seen = new Set();
-        const merged = [...liveList, ...completedList].filter(s => {
-          if (seen.has(s.id)) return false;
-          seen.add(s.id); return true;
-        });
+        const comp = completed?.sessions || completed || [];
+        const lv   = live?.sessions     || live     || [];
+        // Merge — live sessions take priority, deduplicate by id
+        const liveIds = new Set(lv.map(s => s.id));
+        const merged  = [...lv, ...comp.filter(s => !liveIds.has(s.id))];
         setSessions(merged);
-        setUsers(u?.users || []);
+        setUsers(u?.users || u || []);
       })
-      .catch(() => {})
-      .finally(() => setLoading(false));
+      .catch(() => {}).finally(() => setLoading(false));
   }, []);
 
   const pros     = users.filter(u => u.role === "pro");
-  // filter uses pro_username
-  const filtered = filter ? sessions.filter(s => s.pro_username === filter) : sessions;
+  const filtered = filter
+    ? sessions.filter(s => s.pro_username === filter)
+    : sessions;
 
   if (loading) return <Spinner />;
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-        <div style={{ fontWeight: 700, fontSize: 20, color: C.text }}>📍 Sessions</div>
-        <Select value={filter} onChange={e => setFilter(e.target.value)}
-          options={[
-            { value: "", label: "All PROs" },
-            ...pros.map(u => ({ value: u.username, label: u.name || u.username })),
-          ]}
-          style={{ width: 160 }} />
+        <div>
+          <div style={{ fontWeight: 700, fontSize: 22, color: C.text }}>Sessions</div>
+          <div style={{ fontSize: 12, color: C.muted, marginTop: 2 }}>{filtered.length} records</div>
+        </div>
+        <select value={filter} onChange={e => setFilter(e.target.value)}
+          style={{ padding: "8px 10px", border: `1px solid ${C.border}`, borderRadius: 8,
+            fontSize: 13, background: C.card, color: C.text, outline: "none", width: 150 }}>
+          <option value="">All PROs</option>
+          {pros.map(u => <option key={u.id} value={u.username}>{u.name || u.username}</option>)}
+        </select>
       </div>
 
-      {filtered.length === 0 ? <Empty msg="No sessions found" icon="📍" /> : filtered.map((s, i) => {
+      {filtered.length === 0 ? <Empty msg="No sessions found" icon="mappin" /> : filtered.map((s, i) => {
         const isLive = !s.check_out_at;
         return (
           <Card key={s.id || i} style={{ padding: "14px 16px" }}>
-            <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 6 }}>
-              <div style={{ fontWeight: 600, fontSize: 14, color: C.text }}>
-                {s.pro_username}
-                {s.centre ? <span style={{ fontSize: 11, color: C.muted, marginLeft: 8 }}>{s.centre}</span> : ""}
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 8 }}>
+              <div style={{ flex: 1 }}>
+                <div style={{ fontWeight: 700, fontSize: 14, color: C.text, marginBottom: 2 }}>
+                  {s.pro_username || "—"}
+                </div>
+                <div style={{ display: "flex", alignItems: "center", gap: 5, fontSize: 13, color: C.muted }}>
+                  <Icon name="mappin" size={12} color={C.muted} />
+                  {s.venue_name || "Unknown venue"}
+                </div>
               </div>
-              {isLive
-                ? <span style={{ background: "#e8f5e9", color: "#388e3c", borderRadius: 20, padding: "2px 8px", fontSize: 11, fontWeight: 700 }}>● LIVE</span>
-                : <span style={{ background: C.bg, color: C.muted, borderRadius: 20, padding: "2px 8px", fontSize: 11 }}>Done</span>}
+              <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 4 }}>
+                {isLive ? (
+                  <span style={{ display: "flex", alignItems: "center", gap: 5, background: C.successBg,
+                    color: C.success, borderRadius: 20, padding: "3px 10px", fontSize: 11, fontWeight: 700 }}>
+                    <span style={{ width: 6, height: 6, borderRadius: "50%", background: C.success, display: "inline-block" }} />
+                    LIVE
+                  </span>
+                ) : (
+                  <span style={{ background: C.bg, color: C.muted, borderRadius: 20, padding: "3px 10px", fontSize: 11 }}>
+                    Done
+                  </span>
+                )}
+                {s.is_auto_checkout && (
+                  <span style={{ background: C.warningBg, color: C.warning, borderRadius: 20,
+                    padding: "2px 8px", fontSize: 10, fontWeight: 600 }}>Auto-checkout</span>
+                )}
+              </div>
             </div>
-            <div style={{ fontSize: 13, color: C.muted }}>📍 {s.venue_name || "Unknown venue"}</div>
-            <div style={{ fontSize: 12, color: C.muted, marginTop: 4 }}>
-              In: {fmt(s.check_in_at)} → Out: {fmt(s.check_out_at)} · {elapsed(s.check_in_at, s.check_out_at)}
+
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 8, marginBottom: 8 }}>
+              <div style={{ background: C.bg, borderRadius: 8, padding: "8px 10px" }}>
+                <div style={{ fontSize: 10, color: C.muted, marginBottom: 2 }}>CHECK-IN</div>
+                <div style={{ fontSize: 12, fontWeight: 600, color: C.text }}>{fmt(s.check_in_at)}</div>
+              </div>
+              <div style={{ background: C.bg, borderRadius: 8, padding: "8px 10px" }}>
+                <div style={{ fontSize: 10, color: C.muted, marginBottom: 2 }}>CHECK-OUT</div>
+                <div style={{ fontSize: 12, fontWeight: 600, color: C.text }}>{fmt(s.check_out_at)}</div>
+              </div>
+              <div style={{ background: C.bg, borderRadius: 8, padding: "8px 10px" }}>
+                <div style={{ fontSize: 10, color: C.muted, marginBottom: 2 }}>DURATION</div>
+                <div style={{ fontSize: 12, fontWeight: 600, color: C.text }}>{elapsed(s.check_in_at, s.check_out_at)}</div>
+              </div>
             </div>
-            {s.trust_score != null && (
-              <div style={{ fontSize: 11, color: C.muted, marginTop: 2 }}>Trust Score: {s.trust_score}/5</div>
-            )}
-            <div style={{ display: "flex", gap: 6, marginTop: 8, flexWrap: "wrap" }}>
-              {s.flagged_fake_gps    && <span style={{ background: C.dangerBg,  color: C.danger,  borderRadius: 20, padding: "2px 8px", fontSize: 11, fontWeight: 600 }}>Fake GPS</span>}
-              {s.flagged_short_visit && <span style={{ background: C.warningBg, color: C.warning, borderRadius: 20, padding: "2px 8px", fontSize: 11 }}>Short Visit</span>}
-              {s.is_auto_checkout    && <span style={{ background: C.warningBg, color: C.warning, borderRadius: 20, padding: "2px 8px", fontSize: 11 }}>Auto-checkout</span>}
+
+            <div style={{ display: "flex", gap: 6, flexWrap: "wrap", alignItems: "center" }}>
+              {s.trust_score != null && (
+                <span style={{ background: C.infoBg, color: C.info, borderRadius: 20, padding: "2px 8px", fontSize: 11, fontWeight: 600 }}>
+                  Trust {s.trust_score}%
+                </span>
+              )}
+              {s.flagged_short_visit && (
+                <span style={{ background: C.warningBg, color: C.warning, borderRadius: 20, padding: "2px 8px", fontSize: 11, fontWeight: 600 }}>Short Visit</span>
+              )}
+              {s.flagged_fake_gps && (
+                <span style={{ background: C.dangerBg, color: C.danger, borderRadius: 20, padding: "2px 8px", fontSize: 11, fontWeight: 600 }}>Fake GPS</span>
+              )}
               {s.selfie_photo && (
-                <img src={s.selfie_photo} alt="selfie" style={{ width: 32, height: 32, borderRadius: 6, objectFit: "cover", cursor: "pointer" }}
-                  onClick={() => window.open(s.selfie_photo, "_blank")} />
+                <img src={s.selfie_photo} alt="selfie"
+                  style={{ width: 36, height: 36, borderRadius: 6, objectFit: "cover",
+                    border: `2px solid ${C.border}`, marginLeft: "auto" }} />
               )}
             </div>
           </Card>

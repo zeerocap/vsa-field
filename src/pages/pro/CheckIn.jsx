@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import C from "../../constants/theme.js";
 import { Card, Btn, Select, Spinner } from "../../components/ui.jsx";
+import Icon from "../../components/Icons.jsx";
 import { getTodayStatus, checkInApi, checkOutApi, getVenues } from "../../api/field.api.js";
 import { useLocationTracker } from "../../hooks/useLocationTracker.js";
 
@@ -17,12 +18,11 @@ function getGPS() {
 
 async function takeSelfie() {
   return new Promise((res, rej) => {
-    const video  = document.createElement("video");
+    const video = document.createElement("video");
     const canvas = document.createElement("canvas");
     navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } })
       .then(stream => {
-        video.srcObject = stream;
-        video.play();
+        video.srcObject = stream; video.play();
         setTimeout(() => {
           canvas.width = 320; canvas.height = 240;
           canvas.getContext("2d").drawImage(video, 0, 0, 320, 240);
@@ -33,17 +33,34 @@ async function takeSelfie() {
   });
 }
 
-export default function CheckIn({ authUser }) {
-  const [status,   setStatus]   = useState(null);
-  const [venues,   setVenues]   = useState([]);
-  const [venueId,  setVenueId]  = useState("");
-  const [loading,  setLoading]  = useState(true);
-  const [working,  setWorking]  = useState(false);
-  const [step,     setStep]     = useState("idle"); // idle | gps | selfie | done | error
-  const [msg,      setMsg]      = useState("");
-  const [gps,      setGps]      = useState(null);
-  const [selfie,   setSelfie]   = useState(null);
-  const [elapsed,  setElapsed]  = useState(null);
+function StepMsg({ step, msg }) {
+  const icon = step === "done" ? "check-circle"
+             : step === "error" ? "x-circle"
+             : step === "gps" ? "mappin"
+             : step === "selfie" ? "camera"
+             : "clock";
+  const color = step === "done" ? C.success
+              : step === "error" ? C.danger
+              : C.brand;
+  return (
+    <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "10px 12px",
+      background: color + "12", borderRadius: 8, fontSize: 13, fontWeight: 500, color }}>
+      <Icon name={icon} size={16} color={color} />
+      {msg}
+    </div>
+  );
+}
+
+export default function CheckIn() {
+  const [status,  setStatus]  = useState(null);
+  const [venues,  setVenues]  = useState([]);
+  const [venueId, setVenueId] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [working, setWorking] = useState(false);
+  const [step,    setStep]    = useState("idle");
+  const [msg,     setMsg]     = useState("");
+  const [selfie,  setSelfie]  = useState(null);
+  const [elapsed, setElapsed] = useState(null);
   const tracker = useLocationTracker();
   const timer   = useRef(null);
 
@@ -51,57 +68,52 @@ export default function CheckIn({ authUser }) {
     Promise.all([getTodayStatus(), getVenues()])
       .then(([s, v]) => {
         setStatus(s);
-        setVenues(v?.venues || v || []);
-        if (!s?.checked_in && v?.length > 0) setVenueId(String((v?.venues || v)[0]?.id || ""));
-        if (s?.checked_in && s?.check_in_time) {
-          const start = new Date(s.check_in_time).getTime();
-          timer.current = setInterval(() => {
-            const diff = Math.floor((Date.now() - start) / 1000);
-            const h = Math.floor(diff / 3600), m = Math.floor((diff % 3600) / 60), sec = diff % 60;
-            setElapsed(`${String(h).padStart(2,"0")}:${String(m).padStart(2,"0")}:${String(sec).padStart(2,"0")}`);
-          }, 1000);
-        }
+        const vlist = v?.venues || v || [];
+        setVenues(vlist);
+        if (!s?.checked_in && vlist.length > 0) setVenueId(String(vlist[0]?.id || ""));
+        if (s?.checked_in && s?.check_in_time) startTimer(new Date(s.check_in_time).getTime());
       })
-      .catch(() => {})
-      .finally(() => setLoading(false));
+      .catch(() => {}).finally(() => setLoading(false));
     return () => { if (timer.current) clearInterval(timer.current); };
   }, []);
 
+  function startTimer(startMs) {
+    if (timer.current) clearInterval(timer.current);
+    timer.current = setInterval(() => {
+      const diff = Math.floor((Date.now() - startMs) / 1000);
+      const h = Math.floor(diff / 3600), m = Math.floor((diff % 3600) / 60), s = diff % 60;
+      setElapsed(`${String(h).padStart(2,"0")}:${String(m).padStart(2,"0")}:${String(s).padStart(2,"0")}`);
+    }, 1000);
+  }
+
   async function handleCheckIn() {
     if (!venueId) return;
-    setWorking(true); setMsg("");
+    setWorking(true); setMsg(""); setSelfie(null);
     try {
-      setStep("gps");
+      setStep("gps");    setMsg("Getting your location...");
       const pos = await getGPS();
-      setGps(pos); setStep("selfie"); setMsg("Getting selfie...");
+      setStep("selfie"); setMsg("Capturing selfie...");
       const photo = await takeSelfie();
-      setSelfie(photo); setStep("done"); setMsg("Checking in...");
+      setSelfie(photo);  setMsg("Checking in...");
       await checkInApi({ venue_id: Number(venueId), lat: pos.lat, lng: pos.lng, accuracy: pos.accuracy, selfie: photo });
       tracker.start();
       const s = await getTodayStatus();
-      setStatus(s);
-      const start = new Date(s.check_in_time).getTime();
-      if (timer.current) clearInterval(timer.current);
-      timer.current = setInterval(() => {
-        const diff = Math.floor((Date.now() - start) / 1000);
-        const h = Math.floor(diff / 3600), m = Math.floor((diff % 3600) / 60), sec = diff % 60;
-        setElapsed(`${String(h).padStart(2,"0")}:${String(m).padStart(2,"0")}:${String(sec).padStart(2,"0")}`);
-      }, 1000);
-      setMsg("✅ Checked in successfully!");
-    } catch (e) { setStep("error"); setMsg("❌ " + (e.message || "Check-in failed")); }
+      setStatus(s); setStep("done"); setMsg("Checked in successfully!");
+      startTimer(new Date(s.check_in_time).getTime());
+    } catch (e) { setStep("error"); setMsg(e.message || "Check-in failed"); }
     finally { setWorking(false); }
   }
 
   async function handleCheckOut() {
     setWorking(true); setMsg("Checking out...");
     try {
-      await getGPS().then(pos => checkOutApi({ lat: pos.lat, lng: pos.lng }));
+      const pos = await getGPS().catch(() => ({ lat: null, lng: null }));
+      await checkOutApi({ lat: pos.lat, lng: pos.lng });
       tracker.stop();
       if (timer.current) clearInterval(timer.current);
       const s = await getTodayStatus();
-      setStatus(s); setElapsed(null);
-      setMsg("✅ Checked out successfully!");
-    } catch (e) { setMsg("❌ " + (e.message || "Check-out failed")); }
+      setStatus(s); setElapsed(null); setStep("done"); setMsg("Checked out successfully!");
+    } catch (e) { setStep("error"); setMsg(e.message || "Check-out failed"); }
     finally { setWorking(false); }
   }
 
@@ -111,38 +123,65 @@ export default function CheckIn({ authUser }) {
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-      <div style={{ fontWeight: 700, fontSize: 20, color: C.text }}>
-        {checkedIn ? "📍 Currently Checked In" : "📍 Check In"}
+      <div style={{ display: "flex", alignItems: "center", gap: 8, fontWeight: 700, fontSize: 20, color: C.text }}>
+        <Icon name="mappin" size={22} color={C.brand} />
+        Check-In
       </div>
 
       {checkedIn ? (
-        <Card style={{ padding: 24, textAlign: "center", background: C.primary }}>
-          <div style={{ fontSize: 48, marginBottom: 12 }}>✅</div>
-          <div style={{ color: C.accent, fontWeight: 700, fontSize: 18, marginBottom: 4 }}>{status.venue_name}</div>
-          <div style={{ color: "rgba(255,255,255,0.6)", fontSize: 13, marginBottom: 8 }}>
+        <Card style={{ padding: 28, textAlign: "center", background: C.brand, border: "none" }}>
+          <div style={{ display: "flex", justifyContent: "center", marginBottom: 12 }}>
+            <Icon name="check-circle" size={52} color="rgba(255,255,255,0.9)" />
+          </div>
+          <div style={{ color: "#fff", fontWeight: 800, fontSize: 19, marginBottom: 4 }}>{status.venue_name}</div>
+          <div style={{ color: "rgba(255,255,255,0.65)", fontSize: 13, marginBottom: 16 }}>
             Since {new Date(status.check_in_time).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
           </div>
-          {elapsed && <div style={{ color: "#fff", fontSize: 32, fontWeight: 700, fontFamily: "monospace", marginBottom: 20 }}>{elapsed}</div>}
+          {elapsed && (
+            <div style={{ color: "#fff", fontSize: 36, fontWeight: 800, fontFamily: "monospace",
+              marginBottom: 24, letterSpacing: 2 }}>{elapsed}</div>
+          )}
           <Btn onClick={handleCheckOut} disabled={working} variant="danger" size="lg" style={{ width: "100%" }}>
-            {working ? "Processing..." : "Check Out"}
+            {working ? "Processing…" : "Check Out"}
           </Btn>
+          {msg && step !== "idle" && (
+            <div style={{ marginTop: 12 }}>
+              <StepMsg step={step} msg={msg} />
+            </div>
+          )}
         </Card>
       ) : (
         <Card style={{ padding: 20, display: "flex", flexDirection: "column", gap: 16 }}>
           <Select label="Select Venue" value={venueId} onChange={e => setVenueId(e.target.value)} required
-            options={venues.map(v => ({ value: String(v.id), label: v.name + (v.location ? ` — ${v.location}` : "") }))} />
-          {step === "gps"    && <div style={{ color: C.info, fontSize: 14, textAlign: "center" }}>📡 Getting your location...</div>}
-          {step === "selfie" && <div style={{ color: C.info, fontSize: 14, textAlign: "center" }}>📷 Taking selfie...</div>}
-          {selfie            && <img src={selfie} alt="selfie" style={{ borderRadius: 10, width: "100%", maxHeight: 200, objectFit: "cover" }} />}
-          {msg               && <div style={{ color: msg.startsWith("✅") ? C.success : msg.startsWith("❌") ? C.danger : C.info, fontSize: 14, textAlign: "center" }}>{msg}</div>}
+            options={venues.length > 0
+              ? venues.map(v => ({ value: String(v.id), label: v.name + (v.venue_type ? ` — ${v.venue_type}` : "") }))
+              : [{ value: "", label: "No venues available" }]} />
+
+          {["gps","selfie","done","error"].includes(step) && (
+            <div style={{ display: "flex", gap: 8, justifyContent: "center" }}>
+              {["gps","selfie","done"].map(s => (
+                <div key={s} style={{ width: 8, height: 8, borderRadius: "50%",
+                  background: step === "done" ? C.success : step === s ? C.brand : C.border }} />
+              ))}
+            </div>
+          )}
+
+          {selfie && (
+            <img src={selfie} alt="selfie" style={{ borderRadius: 10, width: "100%", maxHeight: 180, objectFit: "cover" }} />
+          )}
+
+          {msg && step !== "idle" && <StepMsg step={step} msg={msg} />}
+
           <Btn onClick={handleCheckIn} disabled={working || !venueId} size="lg" style={{ width: "100%" }}>
-            {working ? "Processing..." : "🚀 Check In"}
+            {working ? "Processing…" : "Check In"}
           </Btn>
-          <div style={{ fontSize: 12, color: C.muted, textAlign: "center" }}>GPS + selfie required at check-in</div>
+          <div style={{ fontSize: 12, color: C.muted, textAlign: "center" }}>
+            GPS + selfie required · Auto-checkout at 4 hours
+          </div>
         </Card>
       )}
 
-      {/* Today summary */}
+      {/* Today's summary */}
       {status && (
         <Card style={{ padding: 16 }}>
           <div style={{ fontWeight: 700, fontSize: 14, color: C.text, marginBottom: 12 }}>Today's Summary</div>
@@ -150,7 +189,7 @@ export default function CheckIn({ authUser }) {
             {[
               { label: "Check-in",    value: status.check_in_time  ? new Date(status.check_in_time).toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"})  : "—" },
               { label: "Check-out",   value: status.check_out_time ? new Date(status.check_out_time).toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"}) : "—" },
-              { label: "Venue",       value: status.venue_name || "—" },
+              { label: "Venue",       value: status.venue_name  || "—" },
               { label: "Trust Score", value: status.trust_score != null ? status.trust_score + "%" : "—" },
             ].map(r => (
               <div key={r.label} style={{ background: C.bg, borderRadius: 8, padding: "10px 12px" }}>
