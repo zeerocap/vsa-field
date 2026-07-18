@@ -1,4 +1,3 @@
-import { useState, useEffect } from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { getUser, getToken, clearAuth } from "./utils/auth.js";
 import { isAdmin, isPro } from "./utils/auth.js";
@@ -14,19 +13,8 @@ import ProExpenses   from "./pages/pro/Expenses.jsx";
 import ProTargets    from "./pages/pro/Targets.jsx";
 import ProVenues     from "./pages/pro/Venues.jsx";
 
-// Admin pages
-import AdminDashboard    from "./pages/admin/Dashboard.jsx";
-import AdminActivities   from "./pages/admin/Activities.jsx";
-import AdminSessions     from "./pages/admin/Sessions.jsx";
-import AdminMapView      from "./pages/admin/MapView.jsx";
-import AdminTrail        from "./pages/admin/Trail.jsx";
-import AdminGallery      from "./pages/admin/Gallery.jsx";
-import AdminVenues       from "./pages/admin/Venues.jsx";
-import AdminFieldLeads   from "./pages/admin/FieldLeads.jsx";
-import AdminTargets      from "./pages/admin/Targets.jsx";
-import AdminTerritory    from "./pages/admin/Territory.jsx";
-import AdminFaceId       from "./pages/admin/FaceId.jsx";
-import AdminLoginSelfies from "./pages/admin/LoginSelfies.jsx";
+// Admin — single cloned page
+import AdminPage from "./pages/admin/AdminPage.jsx";
 
 function ProtectedApp() {
   const user = getUser();
@@ -53,19 +41,7 @@ function ProtectedApp() {
     return (
       <Layout>
         <Routes>
-          <Route path="/"              element={<AdminDashboard />} />
-          <Route path="/activities"    element={<AdminActivities />} />
-          <Route path="/sessions"      element={<AdminSessions />} />
-          <Route path="/map"           element={<AdminMapView />} />
-          <Route path="/trail"         element={<AdminTrail />} />
-          <Route path="/gallery"       element={<AdminGallery />} />
-          <Route path="/venues"        element={<AdminVenues />} />
-          <Route path="/leads"         element={<AdminFieldLeads />} />
-          <Route path="/targets"       element={<AdminTargets />} />
-          <Route path="/territory"     element={<AdminTerritory />} />
-          <Route path="/faceid"        element={<AdminFaceId />} />
-          <Route path="/login-selfies" element={<AdminLoginSelfies />} />
-          <Route path="*"              element={<Navigate to="/" replace />} />
+          <Route path="/*" element={<AdminPage />} />
         </Routes>
       </Layout>
     );
