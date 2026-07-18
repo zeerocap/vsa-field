@@ -3229,11 +3229,24 @@ function TrailTab({ authUser, proMap, isMobile }) {
 }
 
 function FieldMarketingInner({ authUser, isMobile }) {
-  const [tab,         setTab]         = useState("overview");
+  const [tab, setTab] = useState(() => {
+    const h = window.location.hash.slice(1);
+    return ["overview","activities","live","trail","sessions","venues","leads","targets","map","territory","photos","logins","faceid"].includes(h) ? h : "overview";
+  });
   const [activities,  setActivities]  = useState([]);
   const [loading,     setLoading]     = useState(true);
   const [refreshing,  setRefreshing]  = useState(false);
   const [selectedAct, setSelectedAct] = useState(null);
+
+  useEffect(() => {
+    function onHash() {
+      const h = window.location.hash.slice(1);
+      const ids = ["overview","activities","live","trail","sessions","venues","leads","targets","map","territory","photos","logins","faceid"];
+      if (ids.includes(h)) setTab(h);
+    }
+    window.addEventListener("hashchange", onHash);
+    return () => window.removeEventListener("hashchange", onHash);
+  }, []);
 
   const loadActivities = useCallback(() => {
     setLoading(true);
@@ -3345,7 +3358,7 @@ function FieldMarketingInner({ authUser, isMobile }) {
         {TABS.map(({ id, label, Icon, isLive }) => {
           const isActive = tab === id;
           return (
-            <button key={id} className={`fm-tab${isActive ? " active" : ""}`} onClick={() => setTab(id)}>
+            <button key={id} className={`fm-tab${isActive ? " active" : ""}`} onClick={() => { window.location.hash = "#" + id; setTab(id); }}>
               {isLive ? (
                 <span style={{ width:7, height:7, borderRadius:"50%", background: isActive ? "#DC2626" : "#9CA3AF", display:"inline-block", flexShrink:0, animation: isActive ? "_livepulse 1.6s ease-in-out infinite" : "none" }}/>
               ) : Icon ? (
