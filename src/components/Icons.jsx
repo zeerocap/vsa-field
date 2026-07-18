@@ -58,6 +58,15 @@ export default function Icon({ name, size = 18, color = "currentColor", style = 
       return <svg {...p}><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>;
     case "alert":
       return <svg {...p}><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>;
+    // New icons
+    case "scan-face":
+      return <svg {...p}><path d="M4 7V4h3M17 4h3v3M4 17v3h3M17 20h3v-3"/><circle cx="12" cy="12" r="3"/><path d="M9 9a4.24 4.24 0 0 0 0 6M15 9a4.24 4.24 0 0 1 0 6"/></svg>;
+    case "calendar":
+      return <svg {...p}><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>;
+    case "refresh":
+      return <svg {...p}><path d="M23 4v6h-6"/><path d="M1 20v-6h6"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>;
+    case "x":
+      return <svg {...p}><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>;
     default:
       return <svg {...p}><circle cx="12" cy="12" r="10"/></svg>;
   }

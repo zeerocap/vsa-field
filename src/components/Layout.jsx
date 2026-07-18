@@ -14,15 +14,18 @@ const PRO_NAV = [
 ];
 
 const ADMIN_NAV = [
-  { path: "/",           icon: "barchart",  label: "Dashboard" },
-  { path: "/activities", icon: "clipboard", label: "Activities" },
-  { path: "/sessions",   icon: "mappin",    label: "Sessions" },
-  { path: "/map",        icon: "map",       label: "Map" },
-  { path: "/trail",      icon: "route",     label: "Trail" },
-  { path: "/gallery",    icon: "camera",    label: "Gallery" },
-  { path: "/venues",     icon: "building",  label: "Venues" },
-  { path: "/leads",      icon: "users",     label: "Field Leads" },
-  { path: "/targets",    icon: "target",    label: "Targets" },
+  { path: "/",              icon: "barchart",   label: "Dashboard" },
+  { path: "/activities",    icon: "clipboard",  label: "Activities" },
+  { path: "/sessions",      icon: "mappin",     label: "Sessions" },
+  { path: "/map",           icon: "map",        label: "Map" },
+  { path: "/trail",         icon: "route",      label: "Trail" },
+  { path: "/gallery",       icon: "camera",     label: "Gallery" },
+  { path: "/venues",        icon: "building",   label: "Venues" },
+  { path: "/leads",         icon: "users",      label: "Field Leads" },
+  { path: "/targets",       icon: "target",     label: "Targets" },
+  { path: "/territory",     icon: "navigation", label: "Territory" },
+  { path: "/login-selfies", icon: "user",       label: "Login Selfies" },
+  { path: "/faceid",        icon: "scan-face",  label: "Face ID" },
 ];
 
 export default function Layout({ children }) {

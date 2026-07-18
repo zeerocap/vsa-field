@@ -44,3 +44,14 @@ export const getTrail        = (params) => call("getProTrail", params);
 
 // Users (for admin dropdowns)
 export const getUsers        = () => call("getUsers");
+
+// Territory
+export const getTerritory    = () => call("getTerritories");
+export const setTerritory    = (params) => call("setTerritory", params);
+
+// Login Selfies
+export const getLoginSelfies = (params) => call("getLoginSelfies", params);
+
+// Face enrollment
+export const enrollFaceApi   = (params) => call("enrollFace", params);
+export const revokeFaceApi   = (params) => call("revokeFace", params);
