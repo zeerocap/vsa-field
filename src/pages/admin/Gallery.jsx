@@ -55,7 +55,7 @@ export default function AdminGallery() {
               style={{ cursor: "pointer", borderRadius: 12, overflow: "hidden",
                 background: C.card, border: `1px solid ${C.border}`, boxShadow: C.shadow,
                 transition: "transform 0.15s, box-shadow 0.15s" }}
-              onMouseEnter={e => { e.currentTarget.style.transform = "scale(1.02)"; e.currentTarget.style.boxShadow = C.shadowMd; }}
+              onMouseEnter={e => { e.currentTarget.style.transform = "scale(1.02)"; e.currentTarget.style.boxShadow = "0 4px 16px rgba(0,0,0,0.12)"; }}
               onMouseLeave={e => { e.currentTarget.style.transform = ""; e.currentTarget.style.boxShadow = C.shadow; }}>
               <img src={s.selfie_photo} alt="check-in"
                 style={{ width: "100%", aspectRatio: "1", objectFit: "cover", display: "block" }} />

@@ -42,7 +42,7 @@ export default function AdminTargets() {
     try {
       await setTarget({ ...form, user_id: Number(form.user_id), target_value: Number(form.target_value) });
       setOpen(false); load();
-    } catch (err) { alert(err.message); } finally { setSaving(false); }
+    } catch (err) { console.error("setTarget error:", err); } finally { setSaving(false); }
   }
 
   if (loading) return <Spinner />;
@@ -50,11 +50,11 @@ export default function AdminTargets() {
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-        <div style={{ fontWeight: 700, fontSize: 20, color: C.text }}>🎯 Targets</div>
+        <div style={{ fontWeight: 700, fontSize: 20, color: C.text }}>Targets</div>
         <Btn onClick={() => setOpen(true)}>+ Set Target</Btn>
       </div>
 
-      {targets.length === 0 ? <Empty msg="No targets set yet" icon="🎯" /> : targets.map((t, i) => (
+      {targets.length === 0 ? <Empty msg="No targets set yet" icon="target" /> : targets.map((t, i) => (
         <Card key={i} style={{ padding: "14px 16px" }}>
           <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 2 }}>
             <div style={{ fontWeight: 600, fontSize: 14, color: C.text }}>{t.user_name}</div>

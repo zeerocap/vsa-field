@@ -3248,6 +3248,16 @@ function FieldMarketingInner({ authUser, isMobile }) {
     return () => window.removeEventListener("hashchange", onHash);
   }, []);
 
+  useEffect(() => {
+    function onHash() {
+      const h = window.location.hash.slice(1);
+      const ids = ["overview","activities","live","trail","sessions","venues","leads","targets","map","territory","photos","logins","faceid"];
+      if (ids.includes(h)) setTab(h);
+    }
+    window.addEventListener("hashchange", onHash);
+    return () => window.removeEventListener("hashchange", onHash);
+  }, []);
+
   const loadActivities = useCallback(() => {
     setLoading(true);
     getFieldActivitiesApi(authUser.token, { limit:500 })

@@ -31,7 +31,7 @@ export default function AdminTrail() {
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-      <div style={{ fontWeight: 700, fontSize: 20, color: C.text }}>🛣️ Location Trail</div>
+      <div style={{ fontWeight: 700, fontSize: 20, color: C.text }}>Location Trail</div>
 
       <Select value={selSession} onChange={e => loadTrail(e.target.value)}
         options={[{ value: "", label: "— Select a session —" },
@@ -40,7 +40,7 @@ export default function AdminTrail() {
       {trailLoad && <Spinner />}
 
       {!trailLoad && selSession && (
-        trail.length === 0 ? <Empty msg="No trail data for this session" icon="🛣️" /> : (
+        trail.length === 0 ? <Empty msg="No trail data for this session" icon="route" /> : (
           <>
             <div style={{ fontSize: 13, color: C.muted }}>{trail.length} GPS points recorded</div>
             {trail.length > 0 && (
