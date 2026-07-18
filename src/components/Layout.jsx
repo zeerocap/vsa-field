@@ -272,6 +272,7 @@ export default function Layout({ children }) {
 
         <style>{`
           .fm-tabbar { display: none !important; }
+          .fm-tabbar { display: none !important; }
           @media (max-width: 767px) {
             .vsa-field-sidebar { display: none !important; }
             .vsa-field-topbar  { display: flex !important; }
