@@ -754,7 +754,7 @@ function ActivitiesTab({ activities, authUser, isMobile, onSelectActivity, loadi
 // ─── VENUES TAB ───────────────────────────────────────────────────────────────
 // ─── Pin Location Modal — Google Maps picker ──────────────────────────────────
 function PinLocationModal({ authUser, venue, onClose, onPinned }) {
-  const { isLoaded } = useJsApiLoader({ googleMapsApiKey: GMAP_KEY });
+  const { isLoaded } = useJsApiLoader({ googleMapsApiKey: GMAP_KEY, id: "vsa-gmap" });
   const [pinLatLng,  setPinLatLng]  = useState(venue.lat ? { lat: venue.lat, lng: venue.lng } : null);
   const [geoRadius,  setGeoRadius]  = useState(venue.geo_radius || 300);
   const [saving,     setSaving]     = useState(false);
@@ -2908,7 +2908,7 @@ function TrailTab({ authUser, proMap, isMobile }) {
   const [placeNames, setPlaceNames] = useState({});     // stop index → place name
   const mapRef = useRef(null);
 
-  const { isLoaded } = useJsApiLoader({ googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_KEY || "", id:"fmp-trail-map" });
+  const { isLoaded } = useJsApiLoader({ googleMapsApiKey: GMAP_KEY, id: "vsa-gmap" });
 
   // Load summary when date changes
   useEffect(() => {
@@ -3310,7 +3310,7 @@ function FieldMarketingInner({ authUser, isMobile }) {
   ];
 
   return (
-    <div style={{ maxWidth:1200, margin:"0 auto" }}>
+    <div style={{ maxWidth:"100%" }}>
       <style>{`
         @keyframes _livepulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(1.4)}}
         @keyframes spin{to{transform:rotate(360deg)}}

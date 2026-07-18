@@ -265,12 +265,13 @@ export default function Layout({ children }) {
           )}
 
           {/* Page content */}
-          <main style={{ flex: 1, padding: "20px", overflowY: "auto" }}>
+          <main style={{ flex: 1, padding: "20px", overflowY: "auto", minHeight: 0 }}>
             {children}
           </main>
         </div>
 
         <style>{`
+          .fm-tabbar { display: none !important; }
           @media (max-width: 767px) {
             .vsa-field-sidebar { display: none !important; }
             .vsa-field-topbar  { display: flex !important; }
