@@ -132,10 +132,6 @@ export function Select({ label, value, onChange, options = [], required, style =
         style={{ width: "100%", border: `1.5px solid ${focus ? C.brand : C.border}`, borderRadius: 9,
           padding: "11px 13px", fontSize: 14, color: C.text, outline: "none",
           background: "#fff", boxSizing: "border-box", cursor: "pointer",
-          transition: "border-color 0.15s", appearance: "none",
-          backgroundImage: "url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236B7280' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E")",
-          backgroundRepeat: "no-repeat", backgroundPosition: "right 13px center",
-          paddingRight: 36 }}>
         {options.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
       </select>
     </div>
