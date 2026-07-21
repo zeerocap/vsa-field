@@ -10,10 +10,9 @@ import {
 import { getUser, clearAuth, isAdmin } from "../utils/auth.js";
 import C from "../constants/theme.js";
 
-const ADMIN_IDS = [
-  "overview","activities","live","trail","sessions",
-  "venues","leads","targets","map","territory","photos","logins","faceid",
-];
+// Imported rather than redeclared — this list and the one in AdminPage.jsx used to
+// be maintained by hand in parallel, so a new tab silently failed to route.
+import { ADMIN_TAB_IDS as ADMIN_IDS } from "../pages/admin/AdminPage.jsx";
 
 const ADMIN_NAV = [
   { id: "overview",   label: "Overview",      icon: LayoutDashboard },
@@ -24,6 +23,7 @@ const ADMIN_NAV = [
   { id: "venues",     label: "Venues",        icon: Building2       },
   { id: "leads",      label: "Leads",         icon: Users           },
   { id: "targets",    label: "Targets",       icon: Target          },
+  { id: "expenses",   label: "Expenses",      icon: DollarSign      },
   { id: "map",        label: "Map",           icon: Map             },
   { id: "territory",  label: "Territory",     icon: Layers          },
   { id: "photos",     label: "Photos",        icon: Camera          },

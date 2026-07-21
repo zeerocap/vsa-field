@@ -24,6 +24,7 @@ const TYPE_COLORS = {
 
 export default function ProActivities() {
   const toast = useToast();
+  const [loadErr, setLoadErr] = useState(null);
   const [items,   setItems]   = useState([]);
   const [venues,  setVenues]  = useState([]);
   const [loading, setLoading] = useState(true);
@@ -39,7 +40,7 @@ export default function ProActivities() {
     setLoading(true);
     Promise.all([getActivities({}), getVenues()])
       .then(([a, v]) => { setItems(a?.activities || []); setVenues(v?.venues || []); })
-      .catch(() => {})
+      .catch(e => setLoadErr(e.message || "Could not load. Check your connection."))
       .finally(() => setLoading(false));
   };
   useEffect(load, []);
@@ -84,6 +85,7 @@ export default function ProActivities() {
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+      <FormError msg={loadErr} />
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
         <div>
           <div style={{ fontWeight: 900, fontSize: 20, color: C.text }}>Activities</div>

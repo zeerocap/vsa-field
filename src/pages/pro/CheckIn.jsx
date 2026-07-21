@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import C from "../../constants/theme.js";
-import { Card, Btn, Select, Spinner } from "../../components/ui.jsx";
+import { Card, Btn, Select, Spinner , FormError} from "../../components/ui.jsx";
 import Icon from "../../components/Icons.jsx";
 import { getTodayStatus, checkInApi, checkOutApi, getVenues } from "../../api/field.api.js";
 import { useLocationTracker } from "../../hooks/useLocationTracker.js";
@@ -16,21 +16,93 @@ function getGPS() {
   });
 }
 
+// Capture the check-in selfie. This is the face-verify fraud control, so it has to
+// fail CLOSED — a capture that cannot be trusted must raise, never return a blank
+// image that uploads as valid evidence.
+//
+// The previous version drew from a <video> that was never attached to the document.
+// iOS Safari refuses to decode frames for a detached element, so drawImage painted
+// a BLACK FRAME which then uploaded as a perfectly valid selfie. It also waited a
+// fixed 1500ms instead of waiting for a frame, never timed out if the user ignored
+// the permission prompt (leaving the button stuck on "Processing…" forever), and
+// released the camera inside the timeout body so a throw left the camera running.
+const SELFIE_TIMEOUT_MS = 20000;
+
 async function takeSelfie() {
-  return new Promise((res, rej) => {
-    const video = document.createElement("video");
+  let stream = null;
+  let video  = null;
+
+  const cleanup = () => {
+    try { stream?.getTracks().forEach(t => t.stop()); } catch { /* already stopped */ }
+    try { video?.remove(); } catch { /* already gone */ }
+  };
+
+  try {
+    stream = await withTimeout(
+      navigator.mediaDevices.getUserMedia({ video: { facingMode: "user", width: 640, height: 480 } }),
+      SELFIE_TIMEOUT_MS,
+      "Camera permission was not granted in time. Allow camera access and try again.",
+    );
+
+    // Must be in the document for iOS to decode frames. Kept visually hidden
+    // rather than display:none, which also stops decoding on some browsers.
+    video = document.createElement("video");
+    video.setAttribute("playsinline", "");   // iOS: do not go fullscreen
+    video.muted = true;
+    video.style.cssText = "position:fixed;opacity:0;pointer-events:none;width:1px;height:1px;left:0;top:0;";
+    document.body.appendChild(video);
+    video.srcObject = stream;
+
+    await withTimeout(video.play(), SELFIE_TIMEOUT_MS, "Camera could not start.");
+
+    // Wait for real pixels rather than guessing at a delay.
+    await withTimeout(waitForFrame(video), SELFIE_TIMEOUT_MS, "Camera did not produce an image.");
+
+    const w = video.videoWidth  || 320;
+    const h = video.videoHeight || 240;
     const canvas = document.createElement("canvas");
-    navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } })
-      .then(stream => {
-        video.srcObject = stream; video.play();
-        setTimeout(() => {
-          canvas.width = 320; canvas.height = 240;
-          canvas.getContext("2d").drawImage(video, 0, 0, 320, 240);
-          stream.getTracks().forEach(t => t.stop());
-          res(canvas.toDataURL("image/jpeg", 0.7));
-        }, 1500);
-      }).catch(rej);
+    canvas.width = w; canvas.height = h;
+    canvas.getContext("2d").drawImage(video, 0, 0, w, h);
+
+    if (isBlank(canvas)) {
+      throw new Error("The camera returned a blank image. Check nothing is covering the lens and try again.");
+    }
+    return canvas.toDataURL("image/jpeg", 0.7);
+  } finally {
+    cleanup();   // runs on success, failure and timeout alike
+  }
+}
+
+function withTimeout(promise, ms, message) {
+  return Promise.race([
+    Promise.resolve(promise),
+    new Promise((_, rej) => setTimeout(() => rej(new Error(message)), ms)),
+  ]);
+}
+
+// Resolve once the element actually has a decoded frame.
+function waitForFrame(video) {
+  return new Promise((res) => {
+    if (video.readyState >= 2 && video.videoWidth > 0) return res();
+    const done = () => { video.removeEventListener("loadeddata", done); res(); };
+    video.addEventListener("loadeddata", done);
   });
+}
+
+// A black or single-colour frame means the capture failed even though drawImage
+// succeeded — the exact silent failure this control has to reject.
+function isBlank(canvas) {
+  const { width: w, height: h } = canvas;
+  const d = canvas.getContext("2d").getImageData(0, 0, w, h).data;
+  let min = 255, max = 0, sum = 0, n = 0;
+  for (let i = 0; i < d.length; i += 4 * 97) {        // sparse sample: fast, ample
+    const lum = (d[i] * 0.299 + d[i + 1] * 0.587 + d[i + 2] * 0.114);
+    if (lum < min) min = lum;
+    if (lum > max) max = lum;
+    sum += lum; n++;
+  }
+  const mean = n ? sum / n : 0;
+  return (max - min) < 8 || mean < 6;                 // no variation, or essentially black
 }
 
 function StepMsg({ step, msg }) {
@@ -52,6 +124,7 @@ function StepMsg({ step, msg }) {
 }
 
 export default function CheckIn() {
+  const [loadErr, setLoadErr] = useState(null);
   const [status,  setStatus]  = useState(null);
   const [venues,  setVenues]  = useState([]);
   const [venueId, setVenueId] = useState("");
@@ -73,7 +146,7 @@ export default function CheckIn() {
         if (!s?.checked_in && vlist.length > 0) setVenueId(String(vlist[0]?.id || ""));
         if (s?.checked_in && s?.check_in_time) startTimer(new Date(s.check_in_time).getTime());
       })
-      .catch(() => {}).finally(() => setLoading(false));
+      .catch(e => setLoadErr(e.message || "Could not load. Check your connection.")).finally(() => setLoading(false));
     return () => { if (timer.current) clearInterval(timer.current); };
   }, []);
 
@@ -123,6 +196,7 @@ export default function CheckIn() {
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+      <FormError msg={loadErr} />
       <div style={{ display: "flex", alignItems: "center", gap: 8, fontWeight: 700, fontSize: 20, color: C.text }}>
         <Icon name="mappin" size={22} color={C.brand} />
         Check-In

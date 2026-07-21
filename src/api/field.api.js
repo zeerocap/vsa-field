@@ -23,6 +23,9 @@ export const addFieldLead    = (params) => call("addFieldLeads", params);
 // Expenses
 export const getExpenses     = (params) => call("getFieldExpenses", params);
 export const addExpense      = (params) => call("addFieldExpense", params);
+// Admin approval — the backend action existed but nothing ever called it, so every
+// claim sat at "pending" forever with no way to action it.
+export const reviewExpense   = (expenseId, status) => call("reviewFieldExpense", { expenseId, status });
 
 // Targets
 export const getTargets      = (params) => call("getFieldTargets", params);

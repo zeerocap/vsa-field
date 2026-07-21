@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import C from "../../constants/theme.js";
-import { Card, Spinner, Btn, Empty } from "../../components/ui.jsx";
+import { Card, Spinner, Btn, Empty , FormError} from "../../components/ui.jsx";
 import Icon from "../../components/Icons.jsx";
 import { getVenues } from "../../api/field.api.js";
 
@@ -50,6 +50,7 @@ function timeAgo(dateStr) {
 }
 
 export default function ProVenues() {
+  const [loadErr, setLoadErr] = useState(null);
   const [venues,     setVenues]  = useState([]);
   const [loading,    setLoading] = useState(true);
   const [search,     setSearch]  = useState("");
@@ -58,7 +59,7 @@ export default function ProVenues() {
   useEffect(() => {
     getVenues()
       .then(r => setVenues(r?.venues || []))
-      .catch(() => {})
+      .catch(e => setLoadErr(e.message || "Could not load. Check your connection."))
       .finally(() => setLoading(false));
   }, []);
 
@@ -72,6 +73,7 @@ export default function ProVenues() {
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+      <FormError msg={loadErr} />
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
         <div>
           <div style={{ fontWeight: 800, fontSize: 18, color: C.text }}>My Venues</div>

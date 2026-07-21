@@ -17,6 +17,7 @@ const STATUS_COLOR = {
 
 export default function ProFieldLeads() {
   const toast = useToast();
+  const [loadErr, setLoadErr] = useState(null);
   const [leads,   setLeads]   = useState([]);
   const [venues,  setVenues]  = useState([]);
   const [loading, setLoading] = useState(true);
@@ -33,7 +34,7 @@ export default function ProFieldLeads() {
     setLoading(true);
     Promise.all([getFieldLeads({}), getVenues()])
       .then(([l, v]) => { setLeads(l?.leads || []); setVenues(v?.venues || []); })
-      .catch(() => {})
+      .catch(e => setLoadErr(e.message || "Could not load. Check your connection."))
       .finally(() => setLoading(false));
   };
   useEffect(load, []);
@@ -87,6 +88,7 @@ export default function ProFieldLeads() {
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+      <FormError msg={loadErr} />
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
         <div>
           <div style={{ fontWeight: 900, fontSize: 20, color: C.text }}>Field Leads</div>

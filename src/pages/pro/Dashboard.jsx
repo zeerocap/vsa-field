@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import C from "../../constants/theme.js";
-import { Card, Spinner, Btn, ProgressBar } from "../../components/ui.jsx";
+import { Card, Spinner, Btn, ProgressBar , FormError} from "../../components/ui.jsx";
 import Icon from "../../components/Icons.jsx";
 import { getFieldDashboard, getTodayStatus, getTargets } from "../../api/field.api.js";
 import { getUser } from "../../utils/auth.js";
@@ -38,6 +38,7 @@ function KpiCard({ label, value, icon, color, bg }) {
 }
 
 export default function ProDashboard() {
+  const [loadErr, setLoadErr] = useState(null);
   const [data,    setData]    = useState(null);
   const [status,  setStatus]  = useState(null);
   const [targets, setTargets] = useState([]);
@@ -52,7 +53,7 @@ export default function ProDashboard() {
         setStatus(s);
         setTargets(t?.targets || []);
       })
-      .catch(() => {})
+      .catch(e => setLoadErr(e.message || "Could not load. Check your connection."))
       .finally(() => setLoading(false));
   }, []);
 
@@ -76,6 +77,7 @@ export default function ProDashboard() {
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+      <FormError msg={loadErr} />
 
       {/* Greeting card */}
       <div style={{ padding: "4px 2px" }}>

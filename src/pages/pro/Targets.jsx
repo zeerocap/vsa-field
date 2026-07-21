@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import C from "../../constants/theme.js";
-import { Card, Spinner, Empty } from "../../components/ui.jsx";
+import { Card, Spinner, Empty , FormError} from "../../components/ui.jsx";
 import { getTargets } from "../../api/field.api.js";
 
 function ProgressBar({ value, max, color = C.accent }) {
@@ -19,17 +19,19 @@ function ProgressBar({ value, max, color = C.accent }) {
 }
 
 export default function ProTargets() {
+  const [loadErr, setLoadErr] = useState(null);
   const [targets, setTargets] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    getTargets({}).then(r => setTargets(r?.targets || [])).catch(() => {}).finally(() => setLoading(false));
+    getTargets({}).then(r => setTargets(r?.targets || [])).catch(e => setLoadErr(e.message || "Could not load. Check your connection.")).finally(() => setLoading(false));
   }, []);
 
   if (loading) return <Spinner />;
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+      <FormError msg={loadErr} />
       <div style={{ fontWeight: 700, fontSize: 20, color: C.text }}>Targets</div>
 
       {targets.length === 0 ? <Empty msg="No targets set yet" icon="target" /> : targets.map((t, i) => (

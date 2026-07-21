@@ -19,6 +19,7 @@ const CAT_META = {
 
 export default function ProExpenses() {
   const toast = useToast();
+  const [loadErr, setLoadErr] = useState(null);
   const [items,   setItems]   = useState([]);
   const [loading, setLoading] = useState(true);
   const [open,    setOpen]    = useState(false);
@@ -36,7 +37,7 @@ export default function ProExpenses() {
     setLoading(true);
     getExpenses({})
       .then(r => setItems(r?.expenses || []))
-      .catch(() => {})
+      .catch(e => setLoadErr(e.message || "Could not load. Check your connection."))
       .finally(() => setLoading(false));
   };
   useEffect(load, []);
@@ -70,6 +71,7 @@ export default function ProExpenses() {
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+      <FormError msg={loadErr} />
 
       {/* Header + summary */}
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
