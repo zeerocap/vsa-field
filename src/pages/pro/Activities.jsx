@@ -38,7 +38,7 @@ export default function ProActivities() {
   const load = () => {
     setLoading(true);
     Promise.all([getActivities({}), getVenues()])
-      .then(([a, v]) => { setItems(a?.activities || a || []); setVenues(v?.venues || v || []); })
+      .then(([a, v]) => { setItems(a?.activities || []); setVenues(v?.venues || []); })
       .catch(() => {})
       .finally(() => setLoading(false));
   };
@@ -60,12 +60,19 @@ export default function ProActivities() {
     setErr("");
     setSaving(true);
     try {
-      await addActivity({
-        ...form,
-        venue_id:       form.venue_id      ? Number(form.venue_id)       : undefined,
-        leads_captured: form.leads_captured ? Number(form.leads_captured) : 0,
-        duration_min:   form.duration_min   ? Number(form.duration_min)   : undefined,
+      // The backend destructures venueName/venueId/activityDate/activityType/
+      // description — sending snake_case form keys meant venueName was always
+      // undefined and every submission was rejected with "venueName required".
+      const venue = venues.find(v => String(v.id) === String(form.venue_id));
+      const res = await addActivity({
+        venueId:      form.venue_id ? Number(form.venue_id) : undefined,
+        venueName:    venue?.name || form.venue_name || "Unnamed visit",
+        activityDate: form.activity_date,
+        activityType: form.activity_type,
+        description:  form.notes || "",
+        durationMin:  form.duration_min ? Number(form.duration_min) : undefined,
       });
+      if (!res.ok) { setErr(res.error || "Failed to save"); return; }
       setOpen(false);
       toast("Activity logged!", "success");
       load();

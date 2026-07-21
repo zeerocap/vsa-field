@@ -22,9 +22,9 @@ export default function AdminTerritory() {
     setLoading(true); setError("");
     try {
       const [ur, tr] = await Promise.all([getUsers(), getTerritory()]);
-      const proList  = (ur?.users || ur || []).filter(u => u.role === "pro");
+      const proList  = (ur?.users || []).filter(u => u.role === "pro");
       setPros(proList);
-      setTerritories(tr?.territories || tr || []);
+      setTerritories(tr?.territories || []);
     } catch (e) {
       setError(e.message || "Failed to load");
     } finally {

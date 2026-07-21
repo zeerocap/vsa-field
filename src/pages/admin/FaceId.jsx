@@ -152,7 +152,7 @@ export default function AdminFaceId() {
     setLoading(true); setError("");
     try {
       const r = await getUsers();
-      setPros((r?.users || r || []).filter(u => u.role === "pro"));
+      setPros((r?.users || []).filter(u => u.role === "pro"));
     } catch (e) {
       setError(e.message || "Failed to load PRO users");
     } finally {

@@ -41,7 +41,7 @@ export default function AdminVenues() {
   });
 
   const load = () => {
-    getVenues().then(r => setVenues(r?.venues || r || [])).catch(() => {}).finally(() => setLoading(false));
+    getVenues().then(r => setVenues(r?.venues || [])).catch(() => {}).finally(() => setLoading(false));
   };
   useEffect(load, []);
 

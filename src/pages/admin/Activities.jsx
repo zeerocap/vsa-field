@@ -19,7 +19,7 @@ export default function AdminActivities() {
 
   useEffect(()=>{
     getActivities({limit:500})
-      .then(a=>setActivities(a?.activities||a||[]))
+      .then(a=>setActivities(a?.activities || []))
       .catch(()=>{}).finally(()=>setLoading(false));
   },[]);
 

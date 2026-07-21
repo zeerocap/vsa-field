@@ -23,7 +23,7 @@ export default function ProTargets() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    getTargets({}).then(r => setTargets(r?.targets || r || [])).catch(() => {}).finally(() => setLoading(false));
+    getTargets({}).then(r => setTargets(r?.targets || [])).catch(() => {}).finally(() => setLoading(false));
   }, []);
 
   if (loading) return <Spinner />;

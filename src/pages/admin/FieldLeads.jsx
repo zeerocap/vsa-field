@@ -12,7 +12,7 @@ export default function AdminFieldLeads() {
 
   useEffect(() => {
     Promise.all([getFieldLeads({}), getUsers()])
-      .then(([l, u]) => { setLeads(l?.leads || l || []); setUsers(u?.users || u || []); })
+      .then(([l, u]) => { setLeads(l?.leads || []); setUsers(u?.users || []); })
       .catch(() => {}).finally(() => setLoading(false));
   }, []);
 

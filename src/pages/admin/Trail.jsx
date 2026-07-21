@@ -13,7 +13,7 @@ export default function AdminTrail() {
 
   useEffect(() => {
     Promise.all([getSessions({}), getUsers()])
-      .then(([s, u]) => { setSessions(s?.sessions || s || []); setUsers(u?.users || u || []); })
+      .then(([s, u]) => { setSessions(s?.sessions || []); setUsers(u?.users || []); })
       .catch(() => {}).finally(() => setLoading(false));
   }, []);
 
@@ -21,7 +21,7 @@ export default function AdminTrail() {
     setSelSession(sessionId); setTrailLoad(true);
     try {
       const r = await getTrail({ session_id: Number(sessionId) });
-      setTrail(r?.trail || r || []);
+      setTrail(r?.trail || []);
     } catch { setTrail([]); } finally { setTrailLoad(false); }
   }
 

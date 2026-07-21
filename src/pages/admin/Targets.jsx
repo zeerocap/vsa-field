@@ -29,7 +29,7 @@ export default function AdminTargets() {
 
   const load = () => {
     Promise.all([getTargets({}), getUsers()])
-      .then(([t, u]) => { setTargets(t?.targets || t || []); setUsers(u?.users || u || []); })
+      .then(([t, u]) => { setTargets(t?.targets || []); setUsers(u?.users || []); })
       .catch(() => {}).finally(() => setLoading(false));
   };
   useEffect(load, []);

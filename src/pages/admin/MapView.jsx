@@ -33,7 +33,7 @@ export default function AdminMapView() {
 
   useEffect(() => {
     getActivities({})
-      .then(r => setActivities(r?.activities || r || []))
+      .then(r => setActivities(r?.activities || []))
       .catch(() => {})
       .finally(() => setLoading(false));
   }, []);

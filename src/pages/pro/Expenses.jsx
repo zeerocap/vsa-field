@@ -25,13 +25,17 @@ export default function ProExpenses() {
   const [saving,  setSaving]  = useState(false);
   const [err,     setErr]     = useState("");
   const [form,    setForm]    = useState({
-    category: "Travel", amount: "", description: "", receipt_url: "",
+    // `date` is required by the backend and was never collected — every expense
+    // was rejected. `notes` and `bill_photo` are the real column names; the old
+    // description/receipt_url keys were silently dropped.
+    category: "Travel", amount: "", date: new Date().toISOString().slice(0, 10),
+    notes: "", bill_photo: "",
   });
 
   const load = () => {
     setLoading(true);
     getExpenses({})
-      .then(r => setItems(r?.expenses || r || []))
+      .then(r => setItems(r?.expenses || []))
       .catch(() => {})
       .finally(() => setLoading(false));
   };
@@ -43,16 +47,18 @@ export default function ProExpenses() {
 
   const openNew = () => {
     setErr("");
-    setForm({ category: "Travel", amount: "", description: "", receipt_url: "" });
+    setForm({ category: "Travel", amount: "", date: new Date().toISOString().slice(0, 10), notes: "", bill_photo: "" });
     setOpen(true);
   };
 
   async function handleSave(e) {
     e.preventDefault();
     if (!form.amount || Number(form.amount) <= 0) { setErr("Enter a valid amount"); return; }
+    if (!form.date) { setErr("Pick a date"); return; }
     setErr(""); setSaving(true);
     try {
-      await addExpense({ ...form, amount: Number(form.amount) });
+      const res = await addExpense({ ...form, amount: Number(form.amount) });
+      if (!res.ok) { setErr(res.error || "Failed to save"); return; }
       setOpen(false);
       toast("Expense logged!", "success");
       load();
@@ -142,10 +148,12 @@ export default function ProExpenses() {
             options={CATS.map(c => ({ value: c, label: c }))} />
           <Input label="Amount (₹)" value={form.amount} onChange={e => F("amount", e.target.value)}
             type="number" min="1" required placeholder="0" />
-          <Input label="Description" value={form.description} onChange={e => F("description", e.target.value)}
+          <Input label="Date" value={form.date} onChange={e => F("date", e.target.value)}
+            type="date" required />
+          <Input label="Description" value={form.notes} onChange={e => F("notes", e.target.value)}
             placeholder="What was this expense for?" />
-          <Input label="Receipt URL (optional)" value={form.receipt_url}
-            onChange={e => F("receipt_url", e.target.value)}
+          <Input label="Receipt URL (optional)" value={form.bill_photo}
+            onChange={e => F("bill_photo", e.target.value)}
             placeholder="Photo link or URL" />
           <Btn type="submit" disabled={saving} size="lg" style={{ width: "100%", marginTop: 4 }}>
             {saving ? "Saving…" : "Log Expense"}

@@ -103,9 +103,9 @@ export default function AdminDashboard() {
       getSessions({}),
     ])
       .then(([a, u, s]) => {
-        setActivities(a?.activities || a || []);
-        setUsers(u?.users || u || []);
-        setSessions(s?.sessions || s || []);
+        setActivities(a?.activities || []);
+        setUsers(u?.users || []);
+        setSessions(s?.sessions || []);
       })
       .catch(() => {})
       .finally(() => setLoading(false));

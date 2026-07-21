@@ -68,7 +68,7 @@ export default function CheckIn() {
     Promise.all([getTodayStatus(), getVenues()])
       .then(([s, v]) => {
         setStatus(s);
-        const vlist = v?.venues || v || [];
+        const vlist = v?.venues || [];
         setVenues(vlist);
         if (!s?.checked_in && vlist.length > 0) setVenueId(String(vlist[0]?.id || ""));
         if (s?.checked_in && s?.check_in_time) startTimer(new Date(s.check_in_time).getTime());

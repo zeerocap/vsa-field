@@ -50,7 +50,7 @@ export default function ProDashboard() {
       .then(([d, s, t]) => {
         setData(d);
         setStatus(s);
-        setTargets(t?.targets || t || []);
+        setTargets(t?.targets || []);
       })
       .catch(() => {})
       .finally(() => setLoading(false));

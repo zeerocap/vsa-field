@@ -23,13 +23,13 @@ export default function AdminSessions() {
   useEffect(() => {
     Promise.all([getSessions({}), getLiveSessions(), getUsers()])
       .then(([completed, live, u]) => {
-        const comp = completed?.sessions || completed || [];
-        const lv   = live?.sessions     || live     || [];
+        const comp = completed?.sessions || [];
+        const lv   = live?.sessions || [];
         // Merge — live sessions take priority, deduplicate by id
         const liveIds = new Set(lv.map(s => s.id));
         const merged  = [...lv, ...comp.filter(s => !liveIds.has(s.id))];
         setSessions(merged);
-        setUsers(u?.users || u || []);
+        setUsers(u?.users || []);
       })
       .catch(() => {}).finally(() => setLoading(false));
   }, []);

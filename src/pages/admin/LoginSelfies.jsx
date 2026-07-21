@@ -22,7 +22,7 @@ export default function AdminLoginSelfies() {
       ...(proFilter ? { proUsername: proFilter } : {}),
       limit: 200,
     })
-      .then(r => setSelfies(r?.selfies || r || []))
+      .then(r => setSelfies(r?.selfies || []))
       .catch(() => setSelfies([]))
       .finally(() => setLoading(false));
   }

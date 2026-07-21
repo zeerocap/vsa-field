@@ -3,7 +3,7 @@ import C from "../../constants/theme.js";
 import { Card, Btn, Modal, Input, Select, Spinner, Empty, FormError } from "../../components/ui.jsx";
 import { useToast } from "../../components/ui.jsx";
 import Icon from "../../components/Icons.jsx";
-import { getFieldLeads, addFieldLead, getVenues } from "../../api/field.api.js";
+import { getFieldLeads, addActivity, getVenues } from "../../api/field.api.js";
 
 const COURSES = ["Aviation","Cabin Crew","Ground Staff","Air Ticketing","Airport Management","Pilot Training","Other"];
 const SOURCES  = ["Walk-in","Event","Referral","Door-to-Door","School Visit","College Visit","Social Media","Other"];
@@ -32,7 +32,7 @@ export default function ProFieldLeads() {
   const load = () => {
     setLoading(true);
     Promise.all([getFieldLeads({}), getVenues()])
-      .then(([l, v]) => { setLeads(l?.leads || l || []); setVenues(v?.venues || v || []); })
+      .then(([l, v]) => { setLeads(l?.leads || []); setVenues(v?.venues || []); })
       .catch(() => {})
       .finally(() => setLoading(false));
   };
@@ -51,7 +51,26 @@ export default function ProFieldLeads() {
     if (!form.name || !form.phone) { setErr("Name and phone are required"); return; }
     setErr(""); setSaving(true);
     try {
-      await addFieldLead([{ ...form, venue_id: form.venue_id ? Number(form.venue_id) : undefined }]);
+      // addFieldLeads requires an activityId, and field_leads.activity_id is NOT
+      // NULL — a standalone lead has nowhere to attach. Capturing a lead IS a field
+      // interaction, so record it as an activity that carries the lead; the backend
+      // writes both rows together. The old call also passed an ARRAY, which spread
+      // into the request body as key "0" and left activityId undefined.
+      const venue = venues.find(v => String(v.id) === String(form.venue_id));
+      const res = await addActivity({
+        venueId:      form.venue_id ? Number(form.venue_id) : undefined,
+        venueName:    venue?.name || form.source || "Walk-in",
+        activityDate: new Date().toISOString().slice(0, 10),
+        activityType: "lead_capture",
+        description:  form.notes || "",
+        leads: [{
+          fullName:         form.name,
+          phoneNumber:      form.phone,
+          courseInterested: form.course,
+          notes:            form.notes || "",
+        }],
+      });
+      if (!res.ok) { setErr(res.error || "Failed to save lead"); return; }
       setOpen(false);
       toast("Lead added!", "success");
       load();
