@@ -457,7 +457,11 @@ function ActivityDetailDrawer({ activity: act, onClose, isMobile }) {
           ["District", act.district || "—"],
           ["Type", (act.activity_type || "").replace(/_/g, " ") || "—"],
           ["Leads", act.leads_captured || 0],
-          ["Notes", act.notes || "—"],
+          // Manually-logged activities store their text in `description`, not
+          // `notes` — the list rows already read notes||description, but this
+          // drawer only read `notes`, so it showed "—" on activities that had a
+          // note. Match the list-view fallback.
+          ["Notes", act.notes || act.description || "—"],
         ].map(([l, v]) => (
           <div
             key={l}
