@@ -1,7 +1,7 @@
 import { useRef, useCallback, useEffect, useState } from "react";
 import { recordTrail } from "../api/field.api.js";
 
-const SAMPLE_MS   = 30000;
+const SAMPLE_MS = 30000;
 const FLUSH_EVERY = 5;
 
 /**
@@ -16,8 +16,8 @@ const FLUSH_EVERY = 5;
  */
 export function useLocationTracker() {
   const interval = useRef(null);
-  const points   = useRef([]);
-  const [error, setError] = useState(null);   // surfaced so a denial is not silent
+  const points = useRef([]);
+  const [error, setError] = useState(null); // surfaced so a denial is not silent
 
   const flush = useCallback(async () => {
     if (!points.current.length) return;
@@ -32,44 +32,60 @@ export function useLocationTracker() {
   const start = useCallback(() => {
     if (interval.current) return;
     interval.current = setInterval(() => {
-      if (!navigator.geolocation) { setError("This device has no GPS."); return; }
+      if (!navigator.geolocation) {
+        setError("This device has no GPS.");
+        return;
+      }
       navigator.geolocation.getCurrentPosition(
-        pos => {
+        (pos) => {
           setError(null);
           points.current.push({
             lat: pos.coords.latitude,
             lng: pos.coords.longitude,
             accuracy: pos.coords.accuracy,
-            ts: Date.now(),
+            // Backend reads `recordedAt`; sending `ts` meant every point was
+            // stamped with the server flush time instead of its capture time,
+            // collapsing up to ~2.5 min of points onto one timestamp.
+            recordedAt: new Date().toISOString(),
           });
           if (points.current.length >= FLUSH_EVERY) flush();
         },
-        err => {
+        (err) => {
           // Silent failure here means an admin sees a gap in the trail with no
           // explanation, and the rep never knows they stopped being tracked.
-          setError(err.code === err.PERMISSION_DENIED
-            ? "Location is off. Your visit trail is not being recorded."
-            : "Could not read your location.");
+          setError(
+            err.code === err.PERMISSION_DENIED
+              ? "Location is off. Your visit trail is not being recorded."
+              : "Could not read your location."
+          );
         },
-        { enableHighAccuracy: true, timeout: 20000, maximumAge: 10000 },
+        { enableHighAccuracy: true, timeout: 20000, maximumAge: 10000 }
       );
     }, SAMPLE_MS);
   }, [flush]);
 
   const stop = useCallback(() => {
-    if (interval.current) { clearInterval(interval.current); interval.current = null; }
+    if (interval.current) {
+      clearInterval(interval.current);
+      interval.current = null;
+    }
     flush();
   }, [flush]);
 
   // Stop on unmount, and flush what is buffered before the tab goes away.
   useEffect(() => {
-    const onHide = () => { if (document.visibilityState === "hidden") flush(); };
+    const onHide = () => {
+      if (document.visibilityState === "hidden") flush();
+    };
     document.addEventListener("visibilitychange", onHide);
     window.addEventListener("pagehide", flush);
     return () => {
       document.removeEventListener("visibilitychange", onHide);
       window.removeEventListener("pagehide", flush);
-      if (interval.current) { clearInterval(interval.current); interval.current = null; }
+      if (interval.current) {
+        clearInterval(interval.current);
+        interval.current = null;
+      }
       flush();
     };
   }, [flush]);
