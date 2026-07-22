@@ -7884,42 +7884,11 @@ function FieldMarketingInner({ authUser, isMobile }) {
   const activePros = proMap.length;
   const venuesCovered = [...new Set(activities.map((a) => a.venue_name).filter(Boolean))].length;
 
-  // ── All tabs — icon + label, single scrollable row (top-developer pattern) ──
-  const TABS = [
-    { id: "overview", label: "Overview", short: "Overview", Icon: LayoutDashboard },
-    {
-      id: "activities",
-      label: totalActs ? `Activities (${totalActs})` : "Activities",
-      short: "Acts",
-      Icon: Activity,
-    },
-    { id: "live", label: "Live", short: "Live", Icon: null, isLive: true },
-    { id: "trail", label: "Trail", short: "Trail", Icon: Route },
-    { id: "sessions", label: "Sessions", short: "Sessions", Icon: Clock },
-    { id: "venues", label: "Venues", short: "Venues", Icon: Building2 },
-    { id: "leads", label: "Leads", short: "Leads", Icon: Users },
-    { id: "targets", label: "Targets", short: "Targets", Icon: Target },
-    { id: "map", label: "Map", short: "Map", Icon: Map },
-    { id: "territory", label: "Territory", short: "Territory", Icon: MapPin },
-    { id: "photos", label: "Photos", short: "Photos", Icon: Camera },
-    { id: "logins", label: "Login Selfies", short: "Selfies", Icon: User },
-    { id: "faceid", label: "Face ID", short: "Face ID", Icon: ScanFace },
-  ];
-
   return (
     <div style={{ maxWidth: "100%" }}>
       <style>{`
         @keyframes _livepulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(1.4)}}
         @keyframes spin{to{transform:rotate(360deg)}}
-        .fm-tabbar{display:flex;gap:4px;padding:4px;overflow-x:auto;scrollbar-width:none;-ms-overflow-style:none;background:#F9FAFB;border-radius:10px;border:1px solid #E5E7EB;}
-        .fm-tabbar::-webkit-scrollbar{display:none}
-        .fm-tab{display:flex;align-items:center;gap:5px;padding:6px 12px;border:none;border-radius:7px;cursor:pointer;font-family:inherit;font-size:13px;font-weight:500;white-space:nowrap;transition:all .15s;flex-shrink:0;background:transparent;color:#6B7280;}
-        .fm-tab:hover{background:#fff;color:#374151;}
-        .fm-tab.active{background:#fff;color:#7e1749;font-weight:700;box-shadow:0 1px 3px rgba(0,0,0,0.10);}
-        @media(max-width:640px){
-          .fm-tab{padding:5px 10px;font-size:12px;gap:4px;}
-          .fm-tab-icon{display:none}
-        }
       `}</style>
 
       {/* ── Page header — responsive ── */}
@@ -8038,46 +8007,12 @@ function FieldMarketingInner({ authUser, isMobile }) {
         </div>
       </div>
 
-      {/* ── Tab bar — scrollable pill style (Linear / Stripe pattern) ── */}
-      <div className="fm-tabbar" style={{ marginBottom: 20 }}>
-        {TABS.map(({ id, label, Icon, isLive }) => {
-          const isActive = tab === id;
-          return (
-            <button
-              key={id}
-              className={`fm-tab${isActive ? " active" : ""}`}
-              onClick={() => {
-                window.location.hash = "#" + id;
-                setTab(id);
-              }}
-            >
-              {isLive ? (
-                <span
-                  style={{
-                    width: 7,
-                    height: 7,
-                    borderRadius: "50%",
-                    background: isActive ? C.danger : C.faint,
-                    display: "inline-block",
-                    flexShrink: 0,
-                    animation: isActive ? "_livepulse 1.6s ease-in-out infinite" : "none",
-                  }}
-                />
-              ) : Icon ? (
-                <span
-                  className="fm-tab-icon"
-                  style={{ display: "flex", alignItems: "center", opacity: isActive ? 1 : 0.7 }}
-                >
-                  <Icon size={13} />
-                </span>
-              ) : null}
-              {label}
-            </button>
-          );
-        })}
-      </div>
+      {/* Navigation is the sidebar (Layout.jsx). The internal top tab bar that
+          this page carried over from its CRM-page origins was removed — it
+          duplicated the sidebar and the two had drifted out of sync. Section
+          selection is still driven by the URL hash the sidebar sets. */}
 
-      {/* ── Tab content ── */}
+      {/* ── Section content ── */}
       {tab === "overview" &&
         (loading ? (
           <div style={{ textAlign: "center", padding: 80, color: C.muted, fontSize: 14 }}>
