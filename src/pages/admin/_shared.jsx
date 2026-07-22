@@ -53,7 +53,46 @@ export const STATUS_COLOR = {
   "Invalid Number": C.faint,
 };
 
+export const KERALA_DISTRICTS = [
+  "Thiruvananthapuram",
+  "Kollam",
+  "Pathanamthitta",
+  "Alappuzha",
+  "Kottayam",
+  "Idukki",
+  "Ernakulam",
+  "Thrissur",
+  "Palakkad",
+  "Malappuram",
+  "Kozhikode",
+  "Wayanad",
+  "Kannur",
+  "Kasaragod",
+];
+
+// Google Maps JS API key — read from the environment where the map panes load it.
+export const GMAP_KEY = import.meta.env.VITE_GMAP_KEY || "";
+
 // ── Pure formatters ──────────────────────────────────────────────────────────
+// Reverse-geocode a stop via OpenStreetMap Nominatim (free, no key). Returns the
+// two most-local name parts, or the raw lat/lng on failure.
+export async function reverseGeocode(lat, lng) {
+  try {
+    const r = await fetch(
+      `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json&zoom=17`,
+      { headers: { "Accept-Language": "en" } }
+    );
+    const d = await r.json();
+    if (d?.display_name) {
+      const parts = d.display_name.split(",").map((s) => s.trim());
+      return parts.slice(0, 2).join(", ");
+    }
+  } catch {
+    /* silent */
+  }
+  return `${lat.toFixed(4)}, ${lng.toFixed(4)}`;
+}
+
 export const fmtDate = (d) =>
   d
     ? new Date(d).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })
