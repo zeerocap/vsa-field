@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo, useCallback } from "react";
+import { Routes, Route, Navigate, useNavigate } from "react-router-dom";
 import { Activity, Navigation, RefreshCw } from "lucide-react";
 import C from "../../constants/theme.js";
 import { getUser, getToken } from "../../utils/auth.js";
@@ -40,24 +41,11 @@ export const ADMIN_TAB_IDS = [
 ];
 
 function FieldMarketingInner({ authUser, isMobile }) {
-  const [tab, setTab] = useState(() => {
-    const h = window.location.hash.slice(1);
-    return ADMIN_TAB_IDS.includes(h) ? h : "overview";
-  });
+  const nav = useNavigate();
   const [activities, setActivities] = useState([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [selectedAct, setSelectedAct] = useState(null);
-
-  // Keep the section in sync with the URL hash the sidebar sets.
-  useEffect(() => {
-    function onHash() {
-      const h = window.location.hash.slice(1);
-      if (ADMIN_TAB_IDS.includes(h)) setTab(h);
-    }
-    window.addEventListener("hashchange", onHash);
-    return () => window.removeEventListener("hashchange", onHash);
-  }, []);
 
   const loadActivities = useCallback(() => {
     setLoading(true);
@@ -229,62 +217,79 @@ function FieldMarketingInner({ authUser, isMobile }) {
         </div>
       </div>
 
-      {/* Navigation is the sidebar (Layout.jsx). The internal top tab bar that
-          this page carried over from its CRM-page origins was removed — it
-          duplicated the sidebar and the two had drifted out of sync. Section
-          selection is still driven by the URL hash the sidebar sets. */}
-
-      {/* ── Section content ── */}
-      {tab === "overview" &&
-        (loading ? (
-          <div style={{ textAlign: "center", padding: 80, color: C.muted, fontSize: 14 }}>
-            Loading field data…
-          </div>
-        ) : (
-          <OverviewTab
-            activities={activities}
-            proMap={proMap}
-            totalLeads={totalLeads}
-            totalActs={totalActs}
-            activePros={activePros}
-            venuesCovered={venuesCovered}
-            isMobile={isMobile}
-            onSelectActivity={setSelectedAct}
-            onChangeTab={setTab}
-          />
-        ))}
-
-      {tab === "activities" && (
-        <ActivitiesTab
-          activities={activities}
-          authUser={authUser}
-          isMobile={isMobile}
-          onSelectActivity={setSelectedAct}
-          loading={loading}
+      {/* Navigation is the sidebar (Layout.jsx); each section is a real route.
+          Shared data (activities/proMap) is loaded once here and passed down. */}
+      <Routes>
+        <Route
+          path="/"
+          element={
+            loading ? (
+              <div style={{ textAlign: "center", padding: 80, color: C.muted, fontSize: 14 }}>
+                Loading field data…
+              </div>
+            ) : (
+              <OverviewTab
+                activities={activities}
+                proMap={proMap}
+                totalLeads={totalLeads}
+                totalActs={totalActs}
+                activePros={activePros}
+                venuesCovered={venuesCovered}
+                isMobile={isMobile}
+                onSelectActivity={setSelectedAct}
+                onChangeTab={(id) => nav(id === "overview" ? "/" : `/${id}`)}
+              />
+            )
+          }
         />
-      )}
-
-      {tab === "sessions" && <SessionsTab authUser={authUser} isMobile={isMobile} />}
-      {tab === "logins" && <LoginSelfiesTab authUser={authUser} isMobile={isMobile} />}
-      {tab === "venues" && <VenuesTab authUser={authUser} isMobile={isMobile} />}
-      {tab === "leads" && <FieldLeadsTab authUser={authUser} isMobile={isMobile} />}
-      {tab === "targets" && (
-        <TargetsTab
-          authUser={authUser}
-          proMap={proMap}
-          activities={activities}
-          isMobile={isMobile}
+        <Route
+          path="/activities"
+          element={
+            <ActivitiesTab
+              activities={activities}
+              authUser={authUser}
+              isMobile={isMobile}
+              onSelectActivity={setSelectedAct}
+              loading={loading}
+            />
+          }
         />
-      )}
-      {tab === "live" && <LiveTab authUser={authUser} isMobile={isMobile} />}
-      {tab === "map" && <AdminMapTab activities={activities} isMobile={isMobile} />}
-      {tab === "territory" && (
-        <TerritoryAdminTab authUser={authUser} proMap={proMap} isMobile={isMobile} />
-      )}
-      {tab === "photos" && <PhotosTab authUser={authUser} proMap={proMap} isMobile={isMobile} />}
-      {tab === "faceid" && <FaceIdTab authUser={authUser} isMobile={isMobile} />}
-      {tab === "expenses" && <ExpensesTab />}
-      {tab === "trail" && <TrailTab authUser={authUser} proMap={proMap} isMobile={isMobile} />}
+        <Route path="/sessions" element={<SessionsTab authUser={authUser} isMobile={isMobile} />} />
+        <Route
+          path="/logins"
+          element={<LoginSelfiesTab authUser={authUser} isMobile={isMobile} />}
+        />
+        <Route path="/venues" element={<VenuesTab authUser={authUser} isMobile={isMobile} />} />
+        <Route path="/leads" element={<FieldLeadsTab authUser={authUser} isMobile={isMobile} />} />
+        <Route
+          path="/targets"
+          element={
+            <TargetsTab
+              authUser={authUser}
+              proMap={proMap}
+              activities={activities}
+              isMobile={isMobile}
+            />
+          }
+        />
+        <Route path="/live" element={<LiveTab authUser={authUser} isMobile={isMobile} />} />
+        <Route path="/map" element={<AdminMapTab activities={activities} isMobile={isMobile} />} />
+        <Route
+          path="/territory"
+          element={<TerritoryAdminTab authUser={authUser} proMap={proMap} isMobile={isMobile} />}
+        />
+        <Route
+          path="/photos"
+          element={<PhotosTab authUser={authUser} proMap={proMap} isMobile={isMobile} />}
+        />
+        <Route path="/faceid" element={<FaceIdTab authUser={authUser} isMobile={isMobile} />} />
+        <Route path="/expenses" element={<ExpensesTab />} />
+        <Route
+          path="/trail"
+          element={<TrailTab authUser={authUser} proMap={proMap} isMobile={isMobile} />}
+        />
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
 
       {/* ── Activity detail drawer ── */}
       {selectedAct && (

@@ -72,28 +72,16 @@ export default function Layout({ children }) {
   const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [moreOpen, setMoreOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState(() => {
-    const h = window.location.hash.slice(1);
-    return ADMIN_IDS.includes(h) ? h : "overview";
-  });
-
-  useEffect(() => {
-    if (!admin) return;
-    function onHash() {
-      const h = window.location.hash.slice(1);
-      if (ADMIN_IDS.includes(h)) setActiveTab(h);
-    }
-    window.addEventListener("hashchange", onHash);
-    return () => window.removeEventListener("hashchange", onHash);
-  }, [admin]);
+  // Active admin section is derived from the path ("/" = overview, "/<id>" = id).
+  const seg = loc.pathname.replace(/^\//, "").split("/")[0];
+  const activeTab = ADMIN_IDS.includes(seg) ? seg : "overview";
 
   function logout() {
     clearAuth();
     nav("/login", { replace: true });
   }
   function navToTab(id) {
-    window.location.hash = "#" + id;
-    setActiveTab(id);
+    nav(id === "overview" ? "/" : `/${id}`);
     setMobileOpen(false);
   }
 

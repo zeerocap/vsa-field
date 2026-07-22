@@ -5,13 +5,13 @@ import Layout from "./components/Layout.jsx";
 import Login from "./pages/Login.jsx";
 
 // PRO pages
-import ProDashboard  from "./pages/pro/Dashboard.jsx";
-import ProCheckIn    from "./pages/pro/CheckIn.jsx";
+import ProDashboard from "./pages/pro/Dashboard.jsx";
+import ProCheckIn from "./pages/pro/CheckIn.jsx";
 import ProActivities from "./pages/pro/Activities.jsx";
 import ProFieldLeads from "./pages/pro/FieldLeads.jsx";
-import ProExpenses   from "./pages/pro/Expenses.jsx";
-import ProTargets    from "./pages/pro/Targets.jsx";
-import ProVenues     from "./pages/pro/Venues.jsx";
+import ProExpenses from "./pages/pro/Expenses.jsx";
+import ProTargets from "./pages/pro/Targets.jsx";
+import ProVenues from "./pages/pro/Venues.jsx";
 
 // Admin — single cloned page
 import AdminPage from "./pages/admin/AdminPage.jsx";
@@ -24,25 +24,25 @@ function ProtectedApp() {
     return (
       <Layout>
         <Routes>
-          <Route path="/"           element={<ProDashboard />} />
-          <Route path="/checkin"    element={<ProCheckIn />} />
+          <Route path="/" element={<ProDashboard />} />
+          <Route path="/checkin" element={<ProCheckIn />} />
           <Route path="/activities" element={<ProActivities />} />
-          <Route path="/leads"      element={<ProFieldLeads />} />
-          <Route path="/expenses"   element={<ProExpenses />} />
-          <Route path="/targets"    element={<ProTargets />} />
-          <Route path="/venues"     element={<ProVenues />} />
-          <Route path="*"           element={<Navigate to="/" replace />} />
+          <Route path="/leads" element={<ProFieldLeads />} />
+          <Route path="/expenses" element={<ProExpenses />} />
+          <Route path="/targets" element={<ProTargets />} />
+          <Route path="/venues" element={<ProVenues />} />
+          <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </Layout>
     );
   }
 
   if (isAdmin(user)) {
+    // AdminPage owns the admin section routes (its own <Routes>), mirroring how
+    // the PRO branch above routes its pages.
     return (
       <Layout>
-        <Routes>
-          <Route path="/*" element={<AdminPage />} />
-        </Routes>
+        <AdminPage />
       </Layout>
     );
   }
@@ -56,7 +56,7 @@ export default function App() {
     <BrowserRouter>
       <Routes>
         <Route path="/login" element={<Login />} />
-        <Route path="/*"     element={<ProtectedApp />} />
+        <Route path="/*" element={<ProtectedApp />} />
       </Routes>
     </BrowserRouter>
   );
