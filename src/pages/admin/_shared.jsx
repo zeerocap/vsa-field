@@ -73,6 +73,40 @@ export const KERALA_DISTRICTS = [
 // Google Maps JS API key — read from the environment where the map panes load it.
 export const GMAP_KEY = import.meta.env.VITE_GMAP_KEY || "";
 
+// Shared Google Maps option presets (POI/transit labels off, no map-type switch).
+export const GMAP_OPTIONS = {
+  disableDefaultUI: false,
+  zoomControl: true,
+  streetViewControl: false,
+  fullscreenControl: true,
+  mapTypeControl: false,
+  clickableIcons: false,
+  styles: [
+    { featureType: "poi", elementType: "labels", stylers: [{ visibility: "off" }] },
+    { featureType: "transit", elementType: "labels", stylers: [{ visibility: "off" }] },
+  ],
+};
+// Trail viewer uses the same preset.
+export const TRAIL_MAP_OPTS = GMAP_OPTIONS;
+
+// District centroids for the admin heatmap.
+export const KERALA_DISTRICT_CENTERS = {
+  Kasaragod: { lat: 12.499, lng: 74.987 },
+  Kannur: { lat: 11.874, lng: 75.37 },
+  Wayanad: { lat: 11.685, lng: 76.132 },
+  Kozhikode: { lat: 11.259, lng: 75.78 },
+  Malappuram: { lat: 11.051, lng: 76.071 },
+  Palakkad: { lat: 10.787, lng: 76.655 },
+  Thrissur: { lat: 10.528, lng: 76.214 },
+  Ernakulam: { lat: 10.016, lng: 76.342 },
+  Idukki: { lat: 9.919, lng: 77.103 },
+  Alappuzha: { lat: 9.498, lng: 76.339 },
+  Kottayam: { lat: 9.592, lng: 76.522 },
+  Pathanamthitta: { lat: 9.265, lng: 76.787 },
+  Kollam: { lat: 8.893, lng: 76.614 },
+  Thiruvananthapuram: { lat: 8.524, lng: 76.937 },
+};
+
 // ── Pure formatters ──────────────────────────────────────────────────────────
 // Reverse-geocode a stop via OpenStreetMap Nominatim (free, no key). Returns the
 // two most-local name parts, or the raw lat/lng on failure.
