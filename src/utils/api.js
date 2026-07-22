@@ -1,5 +1,20 @@
 import { API_BASE } from "../config.js";
-import { getToken } from "./auth.js";
+import { getToken, clearAuth } from "./auth.js";
+
+// A stale/expired token makes every call fail. Without central handling the user
+// is stranded on a screen full of error banners with no way back. Detect the
+// token-specific failures from verifyToken (NOT role/permission denials) and send
+// the user to a clean login once. Guarded so concurrent calls redirect only once.
+let redirecting = false;
+function isAuthExpiry(error) {
+  return /invalid or expired token|no token provided/i.test(error || "");
+}
+function forceReLogin() {
+  if (redirecting) return;
+  redirecting = true;
+  clearAuth();
+  window.location.assign("/login");
+}
 
 // Returns { ok, ... } and NEVER throws.
 //
@@ -20,13 +35,20 @@ export async function call(action, params = {}) {
 
     const data = await res.json();
     // Handlers report failure as { ok:false, error } or a bare { error }.
-    if (data?.error) return { ok: false, error: data.error, ...data };
+    if (data?.error) {
+      if (isAuthExpiry(data.error)) forceReLogin();
+      return { ok: false, error: data.error, ...data };
+    }
     // Success payloads already carry ok:true; default it for any that don't.
     return { ok: true, ...data };
   } catch (e) {
     // Network down, DNS failure, offline PWA — a field app's normal condition.
-    return { ok: false, error: e.message === "Failed to fetch"
-      ? "No connection. Check your network and try again."
-      : (e.message || "Request failed") };
+    return {
+      ok: false,
+      error:
+        e.message === "Failed to fetch"
+          ? "No connection. Check your network and try again."
+          : e.message || "Request failed",
+    };
   }
 }
