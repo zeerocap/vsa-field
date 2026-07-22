@@ -4,6 +4,7 @@
 // from the old AdminPage monolith so each section can live in its own file.
 // Depends only on the theme; never imports a section (no circular deps).
 // ─────────────────────────────────────────────────────────────────────────────
+import { useState } from "react";
 import C from "../../constants/theme.js";
 import { call } from "../../utils/api.js";
 
@@ -185,52 +186,66 @@ export const Pill = ({ label, color = C.brand }) => (
   </span>
 );
 
-export const KPICard = ({ icon: Icon, label, value, color, sub }) => (
-  <div
-    style={{
-      background: C.card,
-      borderRadius: 12,
-      padding: "18px 20px",
-      border: `1px solid ${C.border}`,
-      boxShadow: "0 1px 3px rgba(0,0,0,.05)",
-      display: "flex",
-      flexDirection: "column",
-      gap: 5,
-      position: "relative",
-      overflow: "hidden",
-    }}
-  >
+// KPI card — matches the CRM KPICard exactly (radius 10, compact 14x12 padding,
+// 10px top-left label, 22px top-right icon chip, 28/700 value, hover state) so
+// Field's stat cards read identically to the parent CRM app.
+export function KPICard({ icon: Icon, label, value, color = C.brand, sub, isMobile }) {
+  const [hov, setHov] = useState(false);
+  const displayVal = typeof value === "number" ? value.toLocaleString("en-IN") : value;
+  return (
     <div
+      onMouseEnter={() => setHov(true)}
+      onMouseLeave={() => setHov(false)}
       style={{
-        position: "absolute",
-        top: 14,
-        right: 14,
-        width: 36,
-        height: 36,
+        background: hov ? "#FAFAFA" : C.card,
         borderRadius: 10,
-        background: `${color}12`,
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
+        padding: isMobile ? "10px 12px" : "14px 12px",
+        border: `1px solid ${hov ? "#D8D8D8" : C.border}`,
+        transition: "all .15s ease",
       }}
     >
-      <Icon size={18} color={color} strokeWidth={2} />
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "flex-start",
+          marginBottom: isMobile ? 6 : 7,
+        }}
+      >
+        <div style={{ fontSize: 10, fontWeight: 500, color: C.muted, letterSpacing: "0.01em" }}>
+          {label}
+        </div>
+        <div
+          style={{
+            width: 22,
+            height: 22,
+            borderRadius: 6,
+            background: `${color}14`,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            flexShrink: 0,
+          }}
+        >
+          {Icon && <Icon size={11} color={color} />}
+        </div>
+      </div>
+      <div
+        style={{
+          fontSize: isMobile ? 20 : 28,
+          fontWeight: 700,
+          color: C.text,
+          lineHeight: 1,
+          letterSpacing: "-0.02em",
+          marginBottom: sub ? (isMobile ? 3 : 4) : 0,
+        }}
+      >
+        {displayVal}
+      </div>
+      {sub && <div style={{ fontSize: 10, color: C.faint }}>{sub}</div>}
     </div>
-    <div
-      style={{
-        fontSize: 12,
-        color: C.muted,
-        fontWeight: 500,
-        textTransform: "uppercase",
-        letterSpacing: ".04em",
-      }}
-    >
-      {label}
-    </div>
-    <div style={{ fontSize: 30, fontWeight: 800, color, lineHeight: 1 }}>{value}</div>
-    {sub && <div style={{ fontSize: 11, color: C.faint }}>{sub}</div>}
-  </div>
-);
+  );
+}
 
 export const SectionCard = ({ title, icon: Icon, right, children }) => (
   <div

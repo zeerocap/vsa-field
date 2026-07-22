@@ -122,11 +122,30 @@ export default function Layout({ children }) {
               justifyContent: collapsed ? "center" : "flex-start",
             }}
           >
-            <img
-              src="/vsa-logo.png"
-              alt="VSA"
-              style={{ width: 28, height: 28, objectFit: "contain", flexShrink: 0 }}
-            />
+            <div
+              style={{
+                width: 28,
+                height: 28,
+                borderRadius: 7,
+                background: C.brand,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                flexShrink: 0,
+                overflow: "hidden",
+              }}
+            >
+              <img
+                src="/vsa-logo.png"
+                alt="VSA"
+                style={{
+                  width: 20,
+                  height: 20,
+                  objectFit: "contain",
+                  filter: "brightness(0) invert(1)",
+                }}
+              />
+            </div>
             {!collapsed && (
               <div>
                 <div
@@ -308,11 +327,30 @@ export default function Layout({ children }) {
             >
               <Menu size={20} />
             </button>
-            <img
-              src="/vsa-logo.png"
-              alt="VSA"
-              style={{ width: 26, height: 26, objectFit: "contain" }}
-            />
+            <div
+              style={{
+                width: 28,
+                height: 28,
+                borderRadius: 7,
+                background: C.brand,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                flexShrink: 0,
+                overflow: "hidden",
+              }}
+            >
+              <img
+                src="/vsa-logo.png"
+                alt="VSA"
+                style={{
+                  width: 20,
+                  height: 20,
+                  objectFit: "contain",
+                  filter: "brightness(0) invert(1)",
+                }}
+              />
+            </div>
             <span style={{ fontSize: 14, fontWeight: 600, color: C.text, flex: 1 }}>
               {currentTab?.label || "VSA Field"}
             </span>
@@ -364,11 +402,30 @@ export default function Layout({ children }) {
                   }}
                 >
                   <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                    <img
-                      src="/vsa-logo.png"
-                      alt="VSA"
-                      style={{ width: 28, height: 28, objectFit: "contain" }}
-                    />
+                    <div
+                      style={{
+                        width: 28,
+                        height: 28,
+                        borderRadius: 7,
+                        background: C.brand,
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        flexShrink: 0,
+                        overflow: "hidden",
+                      }}
+                    >
+                      <img
+                        src="/vsa-logo.png"
+                        alt="VSA"
+                        style={{
+                          width: 20,
+                          height: 20,
+                          objectFit: "contain",
+                          filter: "brightness(0) invert(1)",
+                        }}
+                      />
+                    </div>
                     <div>
                       <div style={{ fontSize: 12, fontWeight: 700, color: C.text }}>VSA Field</div>
                       <div style={{ fontSize: 10, color: C.faint }}>Field Marketing Admin</div>
@@ -489,11 +546,30 @@ export default function Layout({ children }) {
         }}
       >
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-          <img
-            src="/vsa-logo.png"
-            alt="VSA"
-            style={{ width: 30, height: 30, objectFit: "contain" }}
-          />
+          <div
+            style={{
+              width: 28,
+              height: 28,
+              borderRadius: 7,
+              background: C.brand,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              flexShrink: 0,
+              overflow: "hidden",
+            }}
+          >
+            <img
+              src="/vsa-logo.png"
+              alt="VSA"
+              style={{
+                width: 20,
+                height: 20,
+                objectFit: "contain",
+                filter: "brightness(0) invert(1)",
+              }}
+            />
+          </div>
           <div>
             <div style={{ color: C.text, fontWeight: 700, fontSize: 14 }}>VSA Field</div>
             <div style={{ color: C.muted, fontSize: 11 }}>

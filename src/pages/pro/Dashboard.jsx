@@ -21,46 +21,54 @@ function formatDate() {
   });
 }
 
-function KpiCard({ label, value, icon, color, bg }) {
+// Matches the CRM KPICard chrome: 10px top-left label, 22px top-right icon chip,
+// 28/700 value, radius 10, compact padding.
+function KpiCard({ label, value, icon, color }) {
   return (
     <div
       style={{
-        background: bg || C.card,
-        borderRadius: 12,
-        padding: "14px",
-        border: `1px solid ${color}22`,
-        display: "flex",
-        flexDirection: "column",
-        gap: 6,
+        background: C.card,
+        borderRadius: 10,
+        padding: "14px 12px",
+        border: `1px solid ${C.border}`,
       }}
     >
       <div
         style={{
-          width: 30,
-          height: 30,
-          borderRadius: 8,
-          background: color + "18",
           display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
+          justifyContent: "space-between",
+          alignItems: "flex-start",
+          marginBottom: 7,
         }}
       >
-        <Icon name={icon} size={15} color={color} />
-      </div>
-      <div style={{ fontSize: 24, fontWeight: 700, color: color || C.text, lineHeight: 1 }}>
-        {value}
+        <div style={{ fontSize: 10, fontWeight: 500, color: C.muted, letterSpacing: "0.01em" }}>
+          {label}
+        </div>
+        <div
+          style={{
+            width: 22,
+            height: 22,
+            borderRadius: 6,
+            background: `${color}14`,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            flexShrink: 0,
+          }}
+        >
+          <Icon name={icon} size={11} color={color} />
+        </div>
       </div>
       <div
         style={{
-          fontSize: 10,
-          color: C.muted,
-          fontWeight: 600,
-          lineHeight: 1.3,
-          textTransform: "uppercase",
-          letterSpacing: 0.4,
+          fontSize: 24,
+          fontWeight: 700,
+          color: C.text,
+          lineHeight: 1,
+          letterSpacing: "-0.02em",
         }}
       >
-        {label}
+        {value}
       </div>
     </div>
   );
