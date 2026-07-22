@@ -13,7 +13,7 @@ import ProExpenses from "./pages/pro/Expenses.jsx";
 import ProTargets from "./pages/pro/Targets.jsx";
 import ProVenues from "./pages/pro/Venues.jsx";
 
-// Admin — single cloned page
+// Admin shell — owns the admin section routes (src/pages/admin/*)
 import AdminPage from "./pages/admin/AdminPage.jsx";
 
 function ProtectedApp() {
