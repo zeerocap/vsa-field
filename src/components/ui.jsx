@@ -94,7 +94,7 @@ export function Card({ children, style = {}, onClick }) {
 // ── Btn ────────────────────────────────────────────────────────────────────
 const BTN_STYLES = {
   primary: { bg: C.brand, color: "#fff", shadow: "0 2px 8px rgba(126,23,73,0.25)" },
-  secondary: { bg: "#F3F4F6", color: C.text, shadow: "none" },
+  secondary: { bg: C.bg, color: C.text, shadow: "none" },
   danger: { bg: C.danger, color: "#fff", shadow: "0 2px 6px rgba(220,38,38,0.25)" },
   ghost: { bg: "transparent", color: C.brand, shadow: "none" },
   success: { bg: C.success, color: "#fff", shadow: "0 2px 8px rgba(22,163,74,0.25)" },
@@ -435,7 +435,7 @@ export function Modal({ open, onClose, title, children }) {
             padding: "12px 0 20px",
           }}
         >
-          <div style={{ fontWeight: 800, fontSize: 18, color: C.text }}>{title}</div>
+          <div style={{ fontWeight: 700, fontSize: 18, color: C.text }}>{title}</div>
           {/* A real button, not a div with a "×" text node — screen readers
               announced that as "times" and it was not keyboard reachable. */}
           <button
@@ -492,7 +492,7 @@ export function StatCard({ label, value, icon, sub, color, bg }) {
           >
             {label}
           </div>
-          <div style={{ fontSize: 28, fontWeight: 900, color: color || C.text, lineHeight: 1 }}>
+          <div style={{ fontSize: 28, fontWeight: 700, color: color || C.text, lineHeight: 1 }}>
             {value}
           </div>
           {sub && <div style={{ fontSize: 11, color: C.muted, marginTop: 5 }}>{sub}</div>}
@@ -581,7 +581,7 @@ export function Empty({ msg = "Nothing here yet", icon = "inbox", action, action
             border: `1px solid ${C.border}`,
           }}
         >
-          <Icon name={icon} size={28} color="#D1D5DB" />
+          <Icon name={icon} size={28} color={C.faint} />
         </div>
       </div>
       <div style={{ fontSize: 15, fontWeight: 600, color: C.text, marginBottom: 6 }}>{msg}</div>

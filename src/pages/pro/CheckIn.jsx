@@ -309,7 +309,7 @@ export default function CheckIn() {
           <div style={{ display: "flex", justifyContent: "center", marginBottom: 12 }}>
             <Icon name="check-circle" size={52} color="rgba(255,255,255,0.9)" />
           </div>
-          <div style={{ color: "#fff", fontWeight: 800, fontSize: 19, marginBottom: 4 }}>
+          <div style={{ color: "#fff", fontWeight: 700, fontSize: 19, marginBottom: 4 }}>
             {status.venue_name}
           </div>
           <div style={{ color: "rgba(255,255,255,0.65)", fontSize: 13, marginBottom: 16 }}>
@@ -324,7 +324,7 @@ export default function CheckIn() {
               style={{
                 color: "#fff",
                 fontSize: 36,
-                fontWeight: 800,
+                fontWeight: 700,
                 fontFamily: "monospace",
                 marginBottom: 24,
                 letterSpacing: 2,

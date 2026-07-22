@@ -151,7 +151,7 @@ export default function ProFieldLeads() {
       <FormError msg={loadErr} />
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
         <div>
-          <div style={{ fontWeight: 900, fontSize: 20, color: C.text }}>Field Leads</div>
+          <div style={{ fontWeight: 700, fontSize: 20, color: C.text }}>Field Leads</div>
           <div style={{ fontSize: 12, color: C.muted, marginTop: 1 }}>
             {leads.length} total leads
           </div>

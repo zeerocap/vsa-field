@@ -34,9 +34,9 @@ const fmtDate = (d) =>
 const TYPE_COLORS = {
   "School Visit": { color: C.brand, bg: C.brandBg },
   "College Visit": { color: C.info, bg: C.infoBg },
-  "Mall Activation": { color: "#7C3AED", bg: "#F5F3FF" },
+  "Mall Activation": { color: C.purple, bg: C.purpleBg },
   Event: { color: C.warning, bg: C.warningBg },
-  "Door-to-Door": { color: "#0891B2", bg: "#E0F2FE" },
+  "Door-to-Door": { color: C.info, bg: C.infoBg },
   "Corporate Visit": { color: C.success, bg: C.successBg },
 };
 
@@ -126,7 +126,7 @@ export default function ProActivities() {
       <FormError msg={loadErr} />
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
         <div>
-          <div style={{ fontWeight: 900, fontSize: 20, color: C.text }}>Activities</div>
+          <div style={{ fontWeight: 700, fontSize: 20, color: C.text }}>Activities</div>
           <div style={{ fontSize: 12, color: C.muted, marginTop: 1 }}>
             {items.length} logged total
           </div>
@@ -195,7 +195,7 @@ export default function ProActivities() {
                   <div
                     style={{
                       fontSize: 20,
-                      fontWeight: 900,
+                      fontWeight: 700,
                       color: (a.leads_captured || 0) > 0 ? C.success : C.muted,
                     }}
                   >

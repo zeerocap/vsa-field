@@ -47,7 +47,7 @@ function KpiCard({ label, value, icon, color, bg }) {
       >
         <Icon name={icon} size={15} color={color} />
       </div>
-      <div style={{ fontSize: 24, fontWeight: 900, color: color || C.text, lineHeight: 1 }}>
+      <div style={{ fontSize: 24, fontWeight: 700, color: color || C.text, lineHeight: 1 }}>
         {value}
       </div>
       <div
@@ -119,7 +119,7 @@ export default function ProDashboard() {
       <div style={{ padding: "4px 2px" }}>
         <div style={{ fontSize: 13, color: C.muted, fontWeight: 500 }}>{formatDate()}</div>
         <div
-          style={{ fontSize: 22, fontWeight: 900, color: C.text, marginTop: 2, lineHeight: 1.2 }}
+          style={{ fontSize: 22, fontWeight: 700, color: C.text, marginTop: 2, lineHeight: 1.2 }}
         >
           {greeting()}, {firstName}!
         </div>
@@ -135,9 +135,9 @@ export default function ProDashboard() {
       <Card
         style={{
           padding: "18px 20px",
-          background: checkedIn ? "linear-gradient(135deg, #7e1749 0%, #4a0d2b 100%)" : "#fff",
+          background: checkedIn ? C.brand : C.card,
           border: checkedIn ? "none" : `1px solid ${C.border}`,
-          boxShadow: checkedIn ? "0 8px 24px rgba(126,23,73,0.35)" : "0 1px 4px rgba(0,0,0,0.06)",
+          boxShadow: "0 1px 3px rgba(0,0,0,0.06)",
         }}
       >
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
@@ -148,7 +148,7 @@ export default function ProDashboard() {
                   width: 8,
                   height: 8,
                   borderRadius: "50%",
-                  background: checkedIn ? "#4ade80" : "#D1D5DB",
+                  background: checkedIn ? C.success : C.faint,
                   boxShadow: checkedIn ? "0 0 0 3px rgba(74,222,128,0.3)" : "none",
                 }}
               />
@@ -164,7 +164,7 @@ export default function ProDashboard() {
                 {checkedIn ? "Active · Checked In" : "Not Checked In"}
               </span>
             </div>
-            <div style={{ fontSize: 19, fontWeight: 800, color: checkedIn ? "#fff" : C.text }}>
+            <div style={{ fontSize: 19, fontWeight: 700, color: checkedIn ? "#fff" : C.text }}>
               {venue}
             </div>
             {since && (
@@ -193,13 +193,13 @@ export default function ProDashboard() {
         <KpiCard label="Today Visits" value={todayVisits} icon="mappin" color={C.brand} />
         <KpiCard label="Today Leads" value={todayLeads} icon="users" color={C.success} />
         <KpiCard label="Week Visits" value={weekVisits} icon="clipboard" color={C.info} />
-        <KpiCard label="Week Leads" value={weekLeads} icon="target" color="#7C3AED" />
-        <KpiCard label={`${monthName} Visits`} value={monthVisits} icon="map" color="#0891B2" />
+        <KpiCard label="Week Leads" value={weekLeads} icon="target" color={C.purple} />
+        <KpiCard label={`${monthName} Visits`} value={monthVisits} icon="map" color={C.info} />
         <KpiCard
           label={`${monthName} Leads`}
           value={monthLeads}
           icon="trending-up"
-          color="#B45309"
+          color={C.orange}
         />
       </div>
 
@@ -259,7 +259,7 @@ export default function ProDashboard() {
 
       {/* Quick actions */}
       <Card style={{ padding: 16 }}>
-        <div style={{ fontWeight: 800, fontSize: 14, color: C.text, marginBottom: 12 }}>
+        <div style={{ fontWeight: 700, fontSize: 14, color: C.text, marginBottom: 12 }}>
           Quick Actions
         </div>
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
@@ -316,7 +316,7 @@ export default function ProDashboard() {
               marginBottom: 12,
             }}
           >
-            <div style={{ fontWeight: 800, fontSize: 14, color: C.text }}>Recent Activities</div>
+            <div style={{ fontWeight: 700, fontSize: 14, color: C.text }}>Recent Activities</div>
             <div
               onClick={() => nav("/activities")}
               style={{ fontSize: 12, color: C.brand, fontWeight: 600, cursor: "pointer" }}

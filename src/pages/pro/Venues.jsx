@@ -14,7 +14,7 @@ const TYPE_COLORS = {
 
 const REL_COLOR = {
   active: C.success,
-  warm: "#F59E0B",
+  warm: C.warning,
   new: C.info,
   cold: C.muted,
 };
@@ -93,7 +93,7 @@ export default function ProVenues() {
       <FormError msg={loadErr} />
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
         <div>
-          <div style={{ fontWeight: 800, fontSize: 18, color: C.text }}>My Venues</div>
+          <div style={{ fontWeight: 700, fontSize: 18, color: C.text }}>My Venues</div>
           <div style={{ fontSize: 12, color: C.muted, marginTop: 2 }}>
             {filtered.length} venue{filtered.length !== 1 ? "s" : ""} in your territory
           </div>
@@ -214,7 +214,7 @@ export default function ProVenues() {
                     borderRight: `1px solid ${C.border}`,
                   }}
                 >
-                  <div style={{ fontSize: 18, fontWeight: 800, color: C.brand }}>
+                  <div style={{ fontSize: 18, fontWeight: 700, color: C.brand }}>
                     {v.total_visits || 0}
                   </div>
                   <div style={{ fontSize: 10, color: C.muted, fontWeight: 600, marginTop: 2 }}>
@@ -229,7 +229,7 @@ export default function ProVenues() {
                     borderRight: `1px solid ${C.border}`,
                   }}
                 >
-                  <div style={{ fontSize: 18, fontWeight: 800, color: C.success }}>
+                  <div style={{ fontSize: 18, fontWeight: 700, color: C.success }}>
                     {v.total_leads || 0}
                   </div>
                   <div style={{ fontSize: 10, color: C.muted, fontWeight: 600, marginTop: 2 }}>

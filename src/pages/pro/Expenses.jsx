@@ -28,9 +28,9 @@ const CATS = [
 const CAT_META = {
   Travel: { icon: "navigation", color: C.brand },
   Food: { icon: "trending-up", color: C.success },
-  Printing: { icon: "clipboard", color: "#7C3AED" },
+  Printing: { icon: "clipboard", color: C.purple },
   "Event Materials": { icon: "target", color: C.warning },
-  Gifts: { icon: "award", color: "#EC4899" },
+  Gifts: { icon: "award", color: C.purple },
   Accommodation: { icon: "building", color: C.info },
   Other: { icon: "wallet", color: C.muted },
 };
@@ -128,7 +128,7 @@ export default function ProExpenses() {
       {/* Header + summary */}
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
         <div>
-          <div style={{ fontWeight: 900, fontSize: 20, color: C.text }}>Expenses</div>
+          <div style={{ fontWeight: 700, fontSize: 20, color: C.text }}>Expenses</div>
           <div style={{ fontSize: 12, color: C.muted, marginTop: 1 }}>{items.length} entries</div>
         </div>
         <Btn onClick={openNew} size="sm">
@@ -152,7 +152,7 @@ export default function ProExpenses() {
             >
               Total Claimed
             </div>
-            <div style={{ fontSize: 22, fontWeight: 900, color: C.brand }}>
+            <div style={{ fontSize: 22, fontWeight: 700, color: C.brand }}>
               ₹{total.toLocaleString()}
             </div>
           </Card>
@@ -169,7 +169,7 @@ export default function ProExpenses() {
             >
               Pending Approval
             </div>
-            <div style={{ fontSize: 22, fontWeight: 900, color: C.warning }}>
+            <div style={{ fontSize: 22, fontWeight: 700, color: C.warning }}>
               ₹{pending.toLocaleString()}
             </div>
           </Card>
